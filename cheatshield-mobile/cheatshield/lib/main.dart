@@ -1,5 +1,6 @@
 import 'package:cheatshield/screens/home_screen.dart';
 import 'package:cheatshield/screens/login_screen.dart';
+import 'package:cheatshield/screens/quiz_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -10,6 +11,7 @@ final _router = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => const LoginScreen()),
     GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+    GoRoute(path: '/quiz', builder: (context, state) => const QuizScreen()),
   ],
 );
 
