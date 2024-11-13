@@ -17,9 +17,11 @@ return new class extends Migration
             $table->uuid('id')->primary()->unique();
             $table->foreignUuid('user_id')->constrained();
             $table->string('title');
+            $table->string('code')->unique();
             $table->text('description')->nullable();
             $table->integer('time_limit')->nullable();
             $table->timestamp('published_at')->nullable();
+            $table->timestamp('valid_until')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
