@@ -21,9 +21,11 @@ class Quiz extends Model
     protected $fillable = [
         'user_id',
         'title',
+        'code',
         'description',
         'time_limit',
         'published_at',
+        'valid_until',
     ];
 
     /**

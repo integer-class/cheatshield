@@ -32,9 +32,8 @@ class QuizResource extends Resource
                             ->icon('heroicon-o-question-mark-circle')
                             ->schema([
                                 // automatically use session's user id
-                                Forms\Components\TextInput::make('user_id')
-                                    ->default(Auth::user()->id)
-                                    ->hidden(),
+                                Forms\Components\Hidden::make('user_id')
+                                    ->default(Auth::user()->id),
                                 Forms\Components\Grid::make(['default' => 12])
                                     ->schema([
                                         Forms\Components\TextInput::make('title')
@@ -84,22 +83,22 @@ class QuizResource extends Resource
                                             ]),
                                         Forms\Components\Grid::make(['default' => 12])
                                             ->schema([
-                                                Forms\Components\TextInput::make('answer_3')
+                                                Forms\Components\TextInput::make('answer_2')
                                                     ->columnSpan(11)
-                                                    ->prefix('C.')
+                                                    ->prefix('B.')
                                                     ->required(),
-                                                Forms\Components\Toggle::make('answer_1_correct')
+                                                Forms\Components\Toggle::make('answer_2_correct')
                                                     ->columnSpan(1)
                                                     ->inline(false)
                                                     ->label('Correct?'),
                                             ]),
                                         Forms\Components\Grid::make(['default' => 12])
                                             ->schema([
-                                                Forms\Components\TextInput::make('answer_2')
+                                                Forms\Components\TextInput::make('answer_3')
                                                     ->columnSpan(11)
-                                                    ->prefix('B.')
+                                                    ->prefix('C.')
                                                     ->required(),
-                                                Forms\Components\Toggle::make('answer_1_correct')
+                                                Forms\Components\Toggle::make('answer_3_correct')
                                                     ->columnSpan(1)
                                                     ->inline(false)
                                                     ->label('Correct?'),
@@ -110,7 +109,7 @@ class QuizResource extends Resource
                                                     ->columnSpan(11)
                                                     ->prefix('D.')
                                                     ->required(),
-                                                Forms\Components\Toggle::make('answer_1_correct')
+                                                Forms\Components\Toggle::make('answer_4_correct')
                                                     ->columnSpan(1)
                                                     ->inline(false)
                                                     ->label('Correct?'),
