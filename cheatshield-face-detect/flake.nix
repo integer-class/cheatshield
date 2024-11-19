@@ -33,6 +33,11 @@
           giflib
           librsvg
           pixman
+
+          python3Packages.face-recognition
+          python3Packages.opencv4
+          python3Packages.scikit-learn
+          python3Packages.numpy
         ];
 
         LD_LIBRARY_PATH = with pkgs; lib.makeLibraryPath [

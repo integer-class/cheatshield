@@ -5,8 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "face-recognition-models",
     "face-recognition>=1.3.0",
     "numpy>=2.1.3",
     "opencv-python>=4.10.0.84",
     "scikit-learn>=1.5.2",
 ]
+
+[tool.uv.sources]
+face-recognition-models = { git = "https://github.com/ageitgey/face_recognition_models" }
