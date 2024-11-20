@@ -17,7 +17,13 @@ class HomeQuizzes extends StatelessWidget {
       itemCount: 6, // Ubah sesuai kebutuhan
       itemBuilder: (context, index) {
         return GestureDetector(
-          onTap: () => context.go('/quiz'), // Arahkan ke halaman quiz
+          onTap: () async {
+            // Arahkan ke halaman kamera sebelum ke halaman quiz
+            final result = await context.push('/camera');
+            if (result == true) {
+              context.go('/quiz');
+            }
+          },
           child: Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16.0),
