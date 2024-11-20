@@ -4,6 +4,38 @@ import 'package:go_router/go_router.dart';
 class HomeQuizzes extends StatelessWidget {
   const HomeQuizzes({super.key});
 
+  // Fungsi untuk menampilkan dialog izin
+  Future<bool> _showPermissionDialog(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible:
+          false, // Pengguna tidak bisa menutup dialog dengan mengetuk di luar
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Permission Required'),
+          content: const Text(
+              'Before joining the quiz, you must allow camera access permission.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Pilihan Deny
+              },
+              child: const Text('Deny'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Pilihan Allow
+              },
+              child: const Text('Allow'),
+            ),
+          ],
+        );
+      },
+    ).then((value) =>
+        value ??
+        false); // Mengembalikan nilai default false jika dialog ditutup
+  }
+
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -18,10 +50,20 @@ class HomeQuizzes extends StatelessWidget {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () async {
-            // Arahkan ke halaman kamera sebelum ke halaman quiz
-            final result = await context.push('/camera');
-            if (result == true) {
-              context.go('/quiz');
+            // Menampilkan dialog izin sebelum mengarahkan ke halaman kamera
+            bool isAllowed = await _showPermissionDialog(context);
+
+            if (isAllowed) {
+              // Jika diizinkan, arahkan ke halaman kamera
+              final result = await context.push('/camera');
+              if (result == true) {
+                context.go('/quiz');
+              }
+            } else {
+              // Jika tidak diizinkan, beri tahu pengguna
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Camera permission denied!')),
+              );
             }
           },
           child: Card(
