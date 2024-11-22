@@ -21,11 +21,7 @@ class Quiz extends Model
     protected $fillable = [
         'user_id',
         'title',
-        'code',
         'description',
-        'time_limit',
-        'published_at',
-        'valid_until',
     ];
 
     /**
@@ -37,18 +33,19 @@ class Quiz extends Model
         'published_at' => 'timestamp',
     ];
 
-    public function user(): BelongsTo
+    /**
+     * @return BelongsTo<User,Quiz>
+     */
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return HasMany<Question,Quiz>
+     */
     public function questions(): HasMany
     {
         return $this->hasMany(Question::class);
-    }
-
-    public function attempts(): HasMany
-    {
-        return $this->hasMany(Attempt::class);
     }
 }

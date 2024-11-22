@@ -11,13 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('quizzes', function (Blueprint $table) {
+        Schema::create('quiz_sessions', function (Blueprint $table) {
             $table->uuid('id')->primary()->unique();
-            $table->foreignUuid('user_id')->references('id')->on('users');
+            $table->foreignUuid('quiz_id')->references('id')->on('quizzes');
+            $table->string('code');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->timestamps();
+            $table->boolean('is_active')->default(false);
+            $table->unsignedInteger('duration')->default(0); // duration in minutes
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('completed_at')->nullable();
+
             $table->softDeletes();
+            $table->timestamps();
         });
     }
 
@@ -26,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('quizzes');
+        Schema::dropIfExists('quiz_sessions');
     }
 };

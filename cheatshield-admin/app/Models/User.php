@@ -48,11 +48,17 @@ class User extends Authenticatable
         'email_verified_at' => 'timestamp',
     ];
 
-    public function profile(): HasOne
+    /**
+     * @return HasOne<Student,User>
+     */
+    public function student(): HasOne
     {
-        return $this->hasOne(Profile::class);
+        return $this->hasOne(Student::class);
     }
 
+    /**
+     * @return HasMany<Quiz,User>
+     */
     public function quiz(): HasMany
     {
         return $this->hasMany(Quiz::class);

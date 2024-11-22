@@ -25,13 +25,19 @@ class Question extends Model
         'points',
     ];
 
+    /**
+     * @return HasMany<Answer,Question>
+     */
+    public function answers(): HasMany
+    {
+        return $this->hasMany(Answer::class);
+    }
+
+    /**
+     * @return BelongsTo<Quiz,Question>
+     */
     public function quiz(): BelongsTo
     {
         return $this->belongsTo(Quiz::class);
-    }
-
-    public function options(): HasMany
-    {
-        return $this->hasMany(Option::class);
     }
 }

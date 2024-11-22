@@ -11,21 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
         Schema::create('answers', function (Blueprint $table) {
             $table->uuid('id')->primary()->unique();
-            $table->foreignUuid('attempt_id')->constrained();
-            $table->foreignUuid('question_id')->constrained();
-            $table->foreignUuid('option_id')->nullable()->constrained();
-            $table->text('content')->nullable();
+            $table->foreignUuid('question_id')->references('id')->on('questions');
+            $table->text('content');
             $table->boolean('is_correct');
-            $table->decimal('points_earned', 5, 2)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
-
-        Schema::enableForeignKeyConstraints();
     }
 
     /**

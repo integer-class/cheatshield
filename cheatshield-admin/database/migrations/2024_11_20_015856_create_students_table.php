@@ -11,18 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
-        Schema::create('profiles', function (Blueprint $table) {
+        Schema::create('students', function (Blueprint $table) {
             $table->uuid('id')->primary()->unique();
             $table->foreignUuid('user_id')->constrained();
-            $table->text('bio')->nullable();
-            $table->string('avatar')->nullable();
+            $table->string('nim')->unique();
+            $table->enum('gender', ['male', 'female']);
+            $table->string('photo')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
         });
-
-        Schema::enableForeignKeyConstraints();
     }
 
     /**
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('profiles');
+        Schema::dropIfExists('students');
     }
 };

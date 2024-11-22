@@ -18,12 +18,9 @@ class Answer extends Model
      * @var array
      */
     protected $fillable = [
-        'attempt_id',
         'question_id',
-        'option_id',
         'content',
         'is_correct',
-        'points_earned',
     ];
 
     /**
@@ -33,21 +30,13 @@ class Answer extends Model
      */
     protected $casts = [
         'is_correct' => 'boolean',
-        'points_earned' => 'decimal:2',
     ];
 
-    public function attempt(): BelongsTo
-    {
-        return $this->belongsTo(Attempt::class);
-    }
-
+    /**
+     * @return BelongsTo<Question,Answer>
+     */
     public function question(): BelongsTo
     {
         return $this->belongsTo(Question::class);
-    }
-
-    public function option(): BelongsTo
-    {
-        return $this->belongsTo(Option::class);
     }
 }

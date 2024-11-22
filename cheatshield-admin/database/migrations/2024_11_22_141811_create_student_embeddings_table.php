@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('quizzes', function (Blueprint $table) {
+        Schema::create('student_embeddings', function (Blueprint $table) {
             $table->uuid('id')->primary()->unique();
-            $table->foreignUuid('user_id')->references('id')->on('users');
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->timestamps();
+            $table->foreignUuid('student_id')->references('id')->on('students');
+            $table->binary('embedding');
+
             $table->softDeletes();
+            $table->timestamps();
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('quizzes');
+        Schema::dropIfExists('student_embeddings');
     }
 };

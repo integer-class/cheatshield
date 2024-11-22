@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('quizzes', function (Blueprint $table) {
+        Schema::create('user_answer_in_sessions', function (Blueprint $table) {
             $table->uuid('id')->primary()->unique();
             $table->foreignUuid('user_id')->references('id')->on('users');
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->timestamps();
+            $table->foreignUuid('quiz_session_id')->references('id')->on('quiz_sessions');
+            $table->foreignUuid('question_id')->references('id')->on('questions');
+            $table->foreignUuid('answer_id')->references('id')->on('answers');
+
             $table->softDeletes();
+            $table->timestamps();
         });
     }
 
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('quizzes');
+        Schema::dropIfExists('user_answer_in_sessions');
     }
 };

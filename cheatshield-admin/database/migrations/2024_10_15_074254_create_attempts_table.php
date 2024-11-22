@@ -11,8 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
         Schema::create('attempts', function (Blueprint $table) {
             $table->uuid('id')->primary()->unique();
             $table->foreignUuid('quiz_id')->constrained();
@@ -23,8 +21,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
-        Schema::enableForeignKeyConstraints();
     }
 
     /**

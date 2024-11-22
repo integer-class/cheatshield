@@ -11,18 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
-        Schema::create('options', function (Blueprint $table) {
+        Schema::create('user_in_quiz_sessions', function (Blueprint $table) {
             $table->uuid('id')->primary()->unique();
-            $table->foreignUuid('question_id')->constrained();
-            $table->text('content');
-            $table->boolean('is_correct');
-            $table->timestamps();
-            $table->softDeletes();
-        });
+            $table->foreignUuid('user_id')->references('id')->on('users');
+            $table->foreignUuid('quiz_session_id')->references('id')->on('quiz_sessions');
+            $table->jsonb('cheating_status')->nullable();
 
-        Schema::enableForeignKeyConstraints();
+            $table->softDeletes();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('options');
+        Schema::dropIfExists('user_in_quiz_sessions');
     }
 };
