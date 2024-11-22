@@ -13,7 +13,7 @@ return new class extends Migration
     {
        Schema::create('questions', function (Blueprint $table) {
             $table->uuid('id')->primary()->unique();
-            $table->foreignUuid('quiz_id')->references('id')->on('quizzes');
+            $table->foreignUuid('quiz_id')->nullable()->references('id')->on('quizzes');
             $table->text('content');
             $table->integer('points')->default(1);
             $table->timestamps();

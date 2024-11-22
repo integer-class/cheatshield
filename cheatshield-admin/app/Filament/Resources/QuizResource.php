@@ -45,6 +45,7 @@ class QuizResource extends Resource
                             ->icon('heroicon-o-numbered-list')
                             ->schema([
                                 Forms\Components\Repeater::make('questions')
+                                    ->relationship('questions')
                                     ->schema([
                                         Forms\Components\TextInput::make('points')
                                             ->numeric()
@@ -56,46 +57,20 @@ class QuizResource extends Resource
                                         Forms\Components\Textarea::make('content')
                                             ->rows(4)
                                             ->required(),
-                                        Forms\Components\Grid::make(['default' => 12])
+                                        Forms\Components\Repeater::make('answers')
+                                            ->relationship('answers')
+                                            ->defaultItems(4)
+                                            ->minItems(2)
+                                            ->maxItems(6)
                                             ->schema([
-                                                Forms\Components\TextInput::make('answer_1')
+                                                Forms\Components\TextInput::make('content')
                                                     ->columnSpan(11)
                                                     ->required(),
-                                                Forms\Components\Toggle::make('answer_1_correct')
+                                                Forms\Components\Toggle::make('is_correct')
                                                     ->columnSpan(1)
                                                     ->inline(false)
                                                     ->label('Correct?'),
-                                            ]),
-                                        Forms\Components\Grid::make(['default' => 12])
-                                            ->schema([
-                                                Forms\Components\TextInput::make('answer_2')
-                                                    ->columnSpan(11)
-                                                    ->required(),
-                                                Forms\Components\Toggle::make('answer_2_correct')
-                                                    ->columnSpan(1)
-                                                    ->inline(false)
-                                                    ->label('Correct?'),
-                                            ]),
-                                        Forms\Components\Grid::make(['default' => 12])
-                                            ->schema([
-                                                Forms\Components\TextInput::make('answer_3')
-                                                    ->columnSpan(11)
-                                                    ->required(),
-                                                Forms\Components\Toggle::make('answer_3_correct')
-                                                    ->columnSpan(1)
-                                                    ->inline(false)
-                                                    ->label('Correct?'),
-                                            ]),
-                                        Forms\Components\Grid::make(['default' => 12])
-                                            ->schema([
-                                                Forms\Components\TextInput::make('answer_4')
-                                                    ->columnSpan(11)
-                                                    ->required(),
-                                                Forms\Components\Toggle::make('answer_4_correct')
-                                                    ->columnSpan(1)
-                                                    ->inline(false)
-                                                    ->label('Correct?'),
-                                            ]),
+                                            ])->columns(12),
                                     ]),
                             ]),
                     ])->activeTab(1),

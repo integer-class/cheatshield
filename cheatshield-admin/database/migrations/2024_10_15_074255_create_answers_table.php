@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('answers', function (Blueprint $table) {
             $table->uuid('id')->primary()->unique();
-            $table->foreignUuid('question_id')->references('id')->on('questions');
+            $table->foreignUuid('question_id')->nullable()->references('id')->on('questions');
             $table->text('content');
             $table->boolean('is_correct');
             $table->timestamps();
