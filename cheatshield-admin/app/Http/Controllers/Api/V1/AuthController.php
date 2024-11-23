@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Response;
 
 class AuthController extends Controller
 {
@@ -20,14 +19,14 @@ class AuthController extends Controller
 
         // login with sanctum
         if (! Auth::attempt($validatedData)) {
-            return Response::json([
+            return response()->json([
                 'message' => 'Invalid email or password',
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         $token = $request->user()->createToken('personal_access_token');
 
-        return Response::json([
+        return response()->json([
             'token' => $token->plainTextToken,
         ]);
     }
@@ -36,7 +35,7 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
 
-        return Response::json([
+        return response()->json([
             'message' => 'Logged out successfully',
         ], JsonResponse::HTTP_OK);
     }
@@ -49,7 +48,7 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::create([
+        $user = User::query()->create([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => bcrypt($validatedData['password']),
@@ -58,8 +57,47 @@ class AuthController extends Controller
 
         $token = $user->createToken('personal_access_token');
 
-        return Response::json([
+        return response()->json([
             'token' => $token->plainTextToken,
+        ]);
+    }
+
+    public function getProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email,
+            'nim' => $user->nim,
+            'gender' => $user->gender,
+            'photo' => $user->photo,
+        ]);
+    }
+
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        // if email field is filled, make sure it's a valid format
+        if ($request->has('email')) {
+            if (! filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+                return response()->json([
+                    'message' => 'Invalid email format',
+                ], JsonResponse::HTTP_BAD_REQUEST);
+            }
+        }
+
+        $user->name ??= $request->name;
+        $user->email ??= $request->email;
+        $user->nim ??= $request->nim;
+        $user->gender ??= $request->gender;
+        $user->photo ??= $request->photo;
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
         ]);
     }
 }

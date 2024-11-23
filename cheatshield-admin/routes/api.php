@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\FaceRecognitionController;
+use App\Http\Controllers\Api\V1\QuizSessionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,8 +24,26 @@ Route::group([
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/register', [AuthController::class, 'register']);
-        Route::get('/profile', [AuthController::class, 'getProfile']);
-        Route::put('/profile', [AuthController::class, 'updateProfile']);
     });
-}
-);
+
+    // quiz related routes
+    Route::group([
+        'prefix' => 'quiz',
+        'as' => 'quiz.',
+        'middleware' => 'auth:sanctum,role:student',
+    ], function () {
+        Route::get('/join/{code}', [QuizSessionController::class, 'join']);
+        Route::get('/history', [QuizSessionController::class, 'history']);
+    });
+
+    // user related operations
+    Route::group([
+        'prefix' => 'user',
+        'as' => 'user.',
+        'middleware' => ['auth:sanctum', 'role:student'],
+    ], function () {
+        Route::get('/', [AuthController::class, 'getProfile']);
+        Route::put('/', [AuthController::class, 'updateProfile']);
+        Route::put('/embedding', [FaceRecognitionController::class, 'updateEmbedding']);
+    });
+});
