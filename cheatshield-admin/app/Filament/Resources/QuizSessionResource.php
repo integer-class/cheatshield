@@ -4,12 +4,16 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\QuizSessionResource\Pages;
 use App\Models\QuizSession;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class QuizSessionResource extends Resource
@@ -35,7 +39,7 @@ class QuizSessionResource extends Resource
                 Forms\Components\Grid::make(12)
                     ->schema([
                         Forms\Components\TextInput::make('title')
-                            ->columnSpan(10)
+                            ->columnSpan(8)
                             ->helperText('Title of the session')
                             ->required()
                             ->maxLength(255),
@@ -43,8 +47,14 @@ class QuizSessionResource extends Resource
                             ->columnSpan(2)
                             ->helperText('max. 8 characters')
                             ->maxLength(8)
-                            ->required()
-                            ->maxLength(255),
+                            ->required(),
+                        Forms\Components\TextInput::make('duration')
+                            ->default(fn (Model $record) => $record->completed_at - $record->started_at)
+                            ->numeric()
+                            ->minValue(1)
+                            ->columnSpan(2)
+                            ->helperText('in minutes')
+                            ->required(),
                     ]),
                 Forms\Components\Hidden::make('is_active')
                     ->default(false),
@@ -66,6 +76,10 @@ class QuizSessionResource extends Resource
                     ->label('Session Active')
                     ->alignCenter()
                     ->boolean(),
+                Tables\Columns\TextColumn::make('duration')
+                    ->label('Duration (minutes)')
+                    ->default(fn (Model $record) => $record->started_at->diffInMinutes($record->completed_at))
+                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('started_at')
                     ->dateTime()
                     ->sortable(),
@@ -89,14 +103,6 @@ class QuizSessionResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\Action::make('start')
-                    ->icon('heroicon-s-play')
-                    ->button()
-                    ->requiresConfirmation()
-                    ->modalIcon('heroicon-o-play')
-                    ->modalHeading('Start Quiz Session')
-                    ->modalDescription('Are you sure you want to start this quiz session?')
-                    ->modalSubmitActionLabel('Start Quiz Session'),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
