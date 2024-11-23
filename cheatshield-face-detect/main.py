@@ -46,6 +46,7 @@ async def upload_video(file: UploadFile = File(...)):
             # Extract frames
             frame_paths = await extract_frames(INPUT_VIDEO_PATH, FRAMES_DIR)
             
+        with timer.timer("Face Detection"):
             # Detect faces
             results = await detect_faces_in_frames(FRAMES_DIR, FACES_DIR, PROCESSED_FRAMES_DIR)
         
