@@ -35,20 +35,17 @@ class QuizSessionResource extends Resource
                 Forms\Components\Grid::make(12)
                     ->schema([
                         Forms\Components\TextInput::make('title')
-                            ->columnSpan(7)
+                            ->columnSpan(10)
                             ->helperText('Title of the session')
                             ->required()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('code')
-                            ->columnSpan(3)
-                            ->helperText('Code for the quiz (max. 8 characters)')
+                            ->columnSpan(2)
+                            ->helperText('max. 8 characters')
                             ->maxLength(8)
                             ->required()
                             ->maxLength(255),
                     ]),
-                Forms\Components\Textarea::make('description')
-                    ->rows(4)
-                    ->columnSpanFull(),
                 Forms\Components\Hidden::make('is_active')
                     ->default(false),
             ]);
@@ -92,10 +89,19 @@ class QuizSessionResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
                 Tables\Actions\Action::make('start')
-                    ->icon('heroicon-s-play'),
+                    ->icon('heroicon-s-play')
+                    ->button()
+                    ->requiresConfirmation()
+                    ->modalIcon('heroicon-o-play')
+                    ->modalHeading('Start Quiz Session')
+                    ->modalDescription('Are you sure you want to start this quiz session?')
+                    ->modalSubmitActionLabel('Start Quiz Session'),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
