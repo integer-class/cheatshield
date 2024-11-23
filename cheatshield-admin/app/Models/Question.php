@@ -13,6 +13,10 @@ class Question extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
+    protected $primaryKey = 'id';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
     /**
      * The attributes that are mass assignable.
      *

@@ -13,6 +13,10 @@ class Quiz extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
+    protected $primaryKey = 'id';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -38,7 +42,7 @@ class Quiz extends Model
      */
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**

@@ -3,10 +3,14 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Models\Quiz;
 use App\Models\User;
 
+/**
+ * @extends Factory<Model>
+ */
 class QuizFactory extends Factory
 {
     /**
@@ -25,8 +29,6 @@ class QuizFactory extends Factory
             'user_id' => User::factory(),
             'title' => $this->faker->sentence(4),
             'description' => $this->faker->text(),
-            'time_limit' => $this->faker->numberBetween(-10000, 10000),
-            'published_at' => $this->faker->dateTime(),
         ];
     }
 }

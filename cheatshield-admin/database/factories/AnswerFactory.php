@@ -3,12 +3,13 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\Answer;
-use App\Models\Attempt;
-use App\Models\Option;
 use App\Models\Question;
 
+/**
+ * @extends Factory<Model>
+ */
 class AnswerFactory extends Factory
 {
     /**
@@ -24,12 +25,9 @@ class AnswerFactory extends Factory
     public function definition(): array
     {
         return [
-            'attempt_id' => Attempt::factory(),
             'question_id' => Question::factory(),
-            'option_id' => Option::factory(),
             'content' => $this->faker->paragraphs(3, true),
             'is_correct' => $this->faker->boolean(),
-            'points_earned' => $this->faker->randomFloat(2, 0, 999.99),
         ];
     }
 }

@@ -3,10 +3,14 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Models\Question;
 use App\Models\Quiz;
 
+/**
+ * @extends Factory<Model>
+ */
 class QuestionFactory extends Factory
 {
     /**
@@ -24,8 +28,7 @@ class QuestionFactory extends Factory
         return [
             'quiz_id' => Quiz::factory(),
             'content' => $this->faker->paragraphs(3, true),
-            'type' => $this->faker->randomElement(["multiple_choice","true_false","short_answer"]),
-            'points' => $this->faker->numberBetween(-10000, 10000),
+            'points' => $this->faker->numberBetween(1, 10),
         ];
     }
 }

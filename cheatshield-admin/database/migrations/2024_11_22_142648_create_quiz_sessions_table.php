@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('quiz_sessions', function (Blueprint $table) {
             $table->uuid('id')->primary()->unique();
-            $table->foreignUuid('quiz_id')->references('id')->on('quizzes');
+            $table->foreignUuid('user_id')->nullable()->references('id')->on('users');
+            $table->foreignUuid('quiz_id')->nullable()->references('id')->on('quizzes');
             $table->string('code');
             $table->string('title');
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(false);
-            $table->unsignedInteger('duration')->default(0); // duration in minutes
             $table->timestamp('started_at')->nullable();
             $table->timestamp('completed_at')->nullable();
 

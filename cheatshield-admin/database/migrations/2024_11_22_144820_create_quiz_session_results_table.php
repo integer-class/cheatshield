@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('quiz_session_results', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary()->unique();
             $table->foreignUuid('user_id')->references('id')->on('users');
             $table->foreignUuid('quiz_session_id')->references('id')->on('quiz_sessions');
             $table->unsignedInteger('total_score');
