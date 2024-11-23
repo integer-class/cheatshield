@@ -1,112 +1,66 @@
-import cv2
-import face_recognition
-import numpy as np
-from sklearn.datasets import fetch_lfw_people
-from collections import Counter
+# main.py
+import os
+import shutil
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from frame_extractor import extract_frames
+from face_detector import detect_faces_in_frames
+from timer import PerformanceTimer
 
-def load_known_faces():
-    print("Loading LFW dataset...")
-    lfw_people = fetch_lfw_people(min_faces_per_person=70, resize=0.5)  # Reduced size
-    
-    known_faces = []
-    known_names = []
-    
-    # Process faces in batches
-    batch_size = 32
-    for i in range(0, len(lfw_people.images), batch_size):
-        batch_images = lfw_people.images[i:i+batch_size]
-        batch_targets = lfw_people.target[i:i+batch_size]
+app = FastAPI()
+
+WORKSPACE_DIR = "workspace"
+INPUT_VIDEO_PATH = os.path.join(WORKSPACE_DIR, "input.mp4")
+FRAMES_DIR = os.path.join(WORKSPACE_DIR, "frames")
+FACES_DIR = os.path.join(WORKSPACE_DIR, "faces")
+PROCESSED_FRAMES_DIR = os.path.join(WORKSPACE_DIR, "processed_frames")
+
+@app.post("/upload-video")
+async def upload_video(file: UploadFile = File(...)):
+    """
+    Upload video file, extract frames, and detect faces
+    """
+    try:
+        # Create workspace directories
+        os.makedirs(WORKSPACE_DIR, exist_ok=True)
+        os.makedirs(FRAMES_DIR, exist_ok=True)
+        os.makedirs(FACES_DIR, exist_ok=True)
+        os.makedirs(PROCESSED_FRAMES_DIR, exist_ok=True)
+
+        # Clean up previous files
+        for dir_path in [FRAMES_DIR, FACES_DIR, PROCESSED_FRAMES_DIR]:
+            for file_name in os.listdir(dir_path):
+                file_path = os.path.join(dir_path, file_name)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(f"Error: {e}")
+
+        # Save uploaded video
+        with open(INPUT_VIDEO_PATH, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        timer = PerformanceTimer()
+
+        with timer.timer("Frame Extraction"):
+            # Extract frames
+            frame_paths = await extract_frames(INPUT_VIDEO_PATH, FRAMES_DIR)
+            
+            # Detect faces
+            results = await detect_faces_in_frames(FRAMES_DIR, FACES_DIR, PROCESSED_FRAMES_DIR)
         
-        for face_img, target in zip(batch_images, batch_targets):
-            face_img_uint8 = (face_img * 255).astype(np.uint8)
-            face_img_rgb = np.dstack([face_img_uint8] * 3)
-            
-            face_encodings = face_recognition.face_encodings(face_img_rgb)
-            if len(face_encodings) > 0:
-                known_faces.append(face_encodings[0])
-                known_names.append(lfw_people.target_names[target])
-    
-    return known_faces, known_names
-
-def main():
-    known_faces, known_names = load_known_faces()
-    print(f"Loaded {len(known_faces)} known faces")
-
-    cap = cv2.VideoCapture(0)
-    
-    # Process every N frames
-    process_every_n_frames = 3
-    frame_count = 0
-    
-    # Keep track of recent predictions for smoothing
-    recent_predictions = []
-    prediction_window = 5
-
-    # Reduce resolution for faster processing
-    frame_scale = 0.25
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        frame_count += 1
+        return {
+            "status": "success",
+            "message": "Video processed successfully",
+            "frames_extracted": len(frame_paths),
+            "faces_detected": results["total_faces"],
+            "frames_processed": results["processed_frames"],
+            "facenet_status": timer.get_stats()
+        }
         
-        # Only process every Nth frame
-        if frame_count % process_every_n_frames != 0:
-            # Still display the frame with the last known locations
-            cv2.imshow('Face Recognition', frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-            continue
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-        # Resize frame for faster processing
-        small_frame = cv2.resize(frame, (0, 0), fx=frame_scale, fy=frame_scale)
-        rgb_small_frame = small_frame[:, :, ::-1]
-
-        # Find faces in current frame
-        face_locations = face_recognition.face_locations(rgb_small_frame, model="hog")  # Use HOG instead of CNN
-        face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
-
-        # Process each face in the frame
-        for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-            # Scale back up face locations
-            scale = int(1/frame_scale)
-            top *= scale
-            right *= scale
-            bottom *= scale
-            left *= scale
-
-            # Use numpy for faster face comparison
-            face_distances = face_recognition.face_distance(known_faces, face_encoding)
-            best_match_index = np.argmin(face_distances)
-            
-            if face_distances[best_match_index] < 0.6:
-                name = known_names[best_match_index]
-            else:
-                name = "Unknown"
-            
-            # Add to recent predictions for smoothing
-            recent_predictions.append(name)
-            if len(recent_predictions) > prediction_window:
-                recent_predictions.pop(0)
-            
-            # Use most common prediction in recent window
-            smoothed_name = Counter(recent_predictions).most_common(1)[0][0]
-
-            # Draw rectangle and name
-            cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
-            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 0), cv2.FILLED)
-            cv2.putText(frame, smoothed_name, (left + 6, bottom - 6), 
-                       cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1)
-
-        cv2.imshow('Face Recognition', frame)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    cap.release()
-    cv2.destroyAllWindows()
-
-if __name__ == "__main__":
-    main()
+@app.get("/")
+async def root():
+    return {"message": "Face Detection API"}
