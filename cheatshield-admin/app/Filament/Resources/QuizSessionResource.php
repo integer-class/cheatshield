@@ -48,8 +48,9 @@ class QuizSessionResource extends Resource
                             ->helperText('max. 8 characters')
                             ->maxLength(8)
                             ->required(),
+                        Forms\Components\Hidden::make('is_active')
+                            ->default(true),
                         Forms\Components\TextInput::make('duration')
-                            ->default(fn (Model $record) => $record->completed_at - $record->started_at)
                             ->numeric()
                             ->minValue(1)
                             ->columnSpan(2)
@@ -81,21 +82,21 @@ class QuizSessionResource extends Resource
                     ->default(fn (Model $record) => $record->started_at->diffInMinutes($record->completed_at))
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('started_at')
-                    ->dateTime()
+                    ->dateTime(timezone: "Asia/Jakarta")
                     ->sortable(),
                 Tables\Columns\TextColumn::make('completed_at')
-                    ->dateTime()
+                    ->dateTime(timezone: "Asia/Jakarta")
                     ->sortable(),
                 Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->dateTime(timezone: "Asia/Jakarta")
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime(timezone: "Asia/Jakarta")
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime(timezone: "Asia/Jakarta")
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
