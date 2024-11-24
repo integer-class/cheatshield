@@ -48,8 +48,6 @@ class QuizSessionResource extends Resource
                             ->helperText('max. 8 characters')
                             ->maxLength(8)
                             ->required(),
-                        Forms\Components\Hidden::make('is_active')
-                            ->default(true),
                         Forms\Components\TextInput::make('duration')
                             ->numeric()
                             ->minValue(1)
@@ -57,8 +55,6 @@ class QuizSessionResource extends Resource
                             ->helperText('in minutes')
                             ->required(),
                     ]),
-                Forms\Components\Hidden::make('is_active')
-                    ->default(false),
             ]);
     }
 
@@ -74,6 +70,7 @@ class QuizSessionResource extends Resource
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
                 Tables\Columns\IconColumn::make('is_active')
+                    ->default(fn (Model $record) => Carbon::now() >= $record->started_at && Carbon::now() <= $record->completed_at)
                     ->label('Session Active')
                     ->alignCenter()
                     ->boolean(),

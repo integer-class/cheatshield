@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignUuid('quiz_id')->nullable()->references('id')->on('quizzes');
             $table->string('code');
             $table->string('title');
-            $table->boolean('is_active')->default(false);
             $table->timestamp('started_at')->nullable();
             $table->timestamp('completed_at')->nullable();
 

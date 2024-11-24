@@ -35,12 +35,6 @@ class QuizSessionController extends Controller
             ], JsonResponse::HTTP_FORBIDDEN);
         }
 
-        if (!$session->is_active) {
-            return response()->json([
-                'message' => 'Quiz session is not active',
-            ], JsonResponse::HTTP_FORBIDDEN);
-        }
-
         $userSession = UserInQuizSession::query()->create([
             'user_id' => $user->id,
             'quiz_session_id' => $session->id,

@@ -21,7 +21,6 @@ class CreateQuizSession extends CreateRecord
             'quiz_id' => $data['quiz_id'],
             'code' => $data['code'],
             'title' => $data['title'],
-            'is_active' => $data['is_active'],
             'started_at' => $started_at,
             'completed_at' => $completed_at,
         ];

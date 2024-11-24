@@ -24,7 +24,6 @@ class QuizSession extends Model
         'quiz_id',
         'code',
         'title',
-        'is_active',
         'started_at',
         'completed_at',
     ];
@@ -33,7 +32,6 @@ class QuizSession extends Model
      * @var array
      */
     protected $casts = [
-        'is_active' => 'boolean',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
