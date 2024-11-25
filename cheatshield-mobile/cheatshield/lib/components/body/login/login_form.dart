@@ -34,19 +34,18 @@ class LoginForm extends StatelessWidget {
           child: ElevatedButton(
             onPressed: () => context.go('/home'),
             style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
               minimumSize: const Size(double.infinity, 50),
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
               ),
             ),
             child: Text(
               'Login',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w800,
+                    color: Colors.white,
                   ),
             ),
           ),

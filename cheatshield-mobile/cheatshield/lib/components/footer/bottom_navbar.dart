@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class BottomNavbar extends StatelessWidget {
   final int activeIndex;
@@ -15,19 +16,28 @@ class BottomNavbar extends StatelessWidget {
     return NavigationBar(
       selectedIndex: activeIndex,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-      onDestinationSelected: onDestinationSelected,
+      onDestinationSelected: (value) {
+        onDestinationSelected(value);
+        if (value == 0) {
+          context.go('/home'); // Home
+        } else if (value == 1) {
+          // History (tambahkan navigasi jika ada)
+        } else if (value == 2) {
+          context.go('/profile'); // Profile
+        }
+      },
       destinations: const <NavigationDestination>[
         NavigationDestination(
           icon: Icon(Icons.home),
           label: 'Home',
         ),
         NavigationDestination(
-          icon: Icon(Icons.layers),
-          label: 'Quizzes',
+          icon: Icon(Icons.history),
+          label: 'History',
         ),
         NavigationDestination(
-          icon: Icon(Icons.settings),
-          label: 'Settings',
+          icon: Icon(Icons.person),
+          label: 'Profile',
         ),
       ],
     );

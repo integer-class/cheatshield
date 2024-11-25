@@ -1,8 +1,8 @@
 import 'package:cheatshield/screens/camera_screen.dart';
 import 'package:cheatshield/screens/home_screen.dart';
 import 'package:cheatshield/screens/login_screen.dart';
+import 'package:cheatshield/screens/profile_screen.dart';
 import 'package:cheatshield/screens/quiz_screen.dart';
-import 'package:cheatshield/screens/waiting_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -16,7 +16,7 @@ final _router = GoRouter(
     GoRoute(path: '/quiz', builder: (context, state) => const QuizScreen()),
     GoRoute(path: '/camera', builder: (context, state) => const CameraScreen()),
     GoRoute(
-        path: '/waiting', builder: (context, state) => const WaitingScreen()),
+        path: '/profile', builder: (context, state) => const ProfileScreen()),
   ],
 );
 

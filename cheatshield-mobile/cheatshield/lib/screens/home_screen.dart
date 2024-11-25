@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../components/header/navbar.dart';
 import '../components/footer/bottom_navbar.dart';
 import '../components/body/home/home_component.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,12 +29,19 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       bottomNavigationBar: BottomNavbar(
-        // Footer
         activeIndex: _activeIndex,
         onDestinationSelected: (value) {
           setState(() {
             _activeIndex = value;
           });
+
+          if (value == 0) {
+            context.go('/home'); // Home
+          } else if (value == 1) {
+            // Tambahkan navigasi ke History jika ada
+          } else if (value == 2) {
+            context.go('/profile'); // Profile
+          }
         },
       ),
     );
