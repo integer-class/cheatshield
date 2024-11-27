@@ -5,21 +5,13 @@ class Navbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start, // User di kiri
-          children: [
-            Text(
-              'Hamqi Dimcha Amzhar',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
+    return AppBar(
+      title: Text(
+        'CheatShield',
+        style: Theme.of(context)
+            .textTheme
+            .titleLarge
+            ?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
       ),
     );
   }

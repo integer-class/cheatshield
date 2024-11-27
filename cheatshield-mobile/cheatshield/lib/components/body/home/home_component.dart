@@ -7,17 +7,18 @@ class HomeComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: const <Widget>[
-        HomeCode(), // Input untuk Join Quiz
+      children: <Widget>[
+        HomeCode(),
         SizedBox(height: 20),
         Text(
           'Quizzes',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
+        SizedBox(height: 20),
         Expanded(
-          child: HomeQuizzes(), // Daftar Quizzes
+          child: HomeQuizzes(),
         ),
       ],
     );

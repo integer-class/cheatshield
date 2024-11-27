@@ -15,7 +15,7 @@ class BottomNavbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return NavigationBar(
       selectedIndex: activeIndex,
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       onDestinationSelected: (value) {
         onDestinationSelected(value);
         if (value == 0) {

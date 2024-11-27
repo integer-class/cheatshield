@@ -6,6 +6,10 @@ class HomeCode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -26,18 +30,15 @@ class HomeCode extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
                 elevation: 0,
+                backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4),
-                  side: BorderSide(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
                 ),
               ),
               child: Text(
                 'Join',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                    fontWeight: FontWeight.w800, color: Colors.white),
               ),
             ),
           ],

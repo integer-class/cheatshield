@@ -3,33 +3,39 @@ import 'package:go_router/go_router.dart';
 import '../components/footer/bottom_navbar.dart'; // Pastikan path sesuai
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  State createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  int _activeIndex = 2; // Set index sesuai posisi yang aktif (Profile)
+  int _activeIndex = 2;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(
+          'Profile',
+          style: Theme.of(context)
+              .textTheme
+              .titleLarge
+              ?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        children: [
-          ListTile(
+        children: <Widget>[
+          const ListTile(
             leading: CircleAvatar(
               radius: 25,
               backgroundImage: NetworkImage(
-                'assets/images/profile-placeholder.png', // Ganti dengan URL gambar profil Anda
+                'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
               ),
             ),
-            title: const Text(
-              'Profile',
+            title: Text(
+              'Al Azhar',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -49,31 +55,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const Divider(),
           ListTile(
+            title: const Text('NIM'),
+            subtitle: const Text('2241783756'),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () {},
+          ),
+          const Divider(),
+          ListTile(
             title: const Text('Update Password'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {},
           ),
           const Divider(),
           Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: ElevatedButton(
-                onPressed: () => context.go('/'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red, // Warna merah
-                  minimumSize: const Size(double.infinity, 50),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: ElevatedButton(
+              onPressed: () => context.go('/'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                minimumSize: const Size(double.infinity, 50),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(
-                  'Logout',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                ),
-              )),
+              ),
+              child: Text(
+                'Logout',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+              ),
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavbar(
@@ -83,12 +97,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _activeIndex = index;
           });
 
-          // Menambahkan logika navigasi sesuai dengan index yang dipilih
           if (index == 0) {
             context.go('/home');
           } else if (index == 1) {
-            context
-                .go('/history'); // Misalnya, ganti dengan rute history jika ada
+            // context.go('/history');
           } else if (index == 2) {
             context.go('/profile');
           }

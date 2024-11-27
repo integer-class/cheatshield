@@ -17,13 +17,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: const Column(
         children: [
-          const Navbar(), // Header
+          Navbar(),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: HomeComponent(), // Body
+              padding: EdgeInsets.all(20.0),
+              child: HomeComponent(),
             ),
           ),
         ],
@@ -36,11 +36,11 @@ class _HomeScreenState extends State<HomeScreen> {
           });
 
           if (value == 0) {
-            context.go('/home'); // Home
+            context.go('/home');
           } else if (value == 1) {
-            // Tambahkan navigasi ke History jika ada
+            // context.go('/history');
           } else if (value == 2) {
-            context.go('/profile'); // Profile
+            context.go('/profile');
           }
         },
       ),
