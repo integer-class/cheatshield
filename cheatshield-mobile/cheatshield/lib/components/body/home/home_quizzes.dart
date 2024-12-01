@@ -47,7 +47,7 @@ class _HomeQuizzesState extends State<HomeQuizzes> {
         crossAxisSpacing: 16.0,
         mainAxisSpacing: 16.0,
       ),
-      itemCount: 6, // Jumlah item (quiz)
+      itemCount: 10,
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () async {
@@ -79,7 +79,7 @@ class _HomeQuizzesState extends State<HomeQuizzes> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.quiz,
+                    Icons.book_outlined,
                     size: 40,
                     color: Theme.of(context).primaryColor,
                   ),

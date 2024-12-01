@@ -21,7 +21,7 @@ class BottomNavbar extends StatelessWidget {
         if (value == 0) {
           context.go('/home'); // Home
         } else if (value == 1) {
-          // History (tambahkan navigasi jika ada)
+          context.go('/history'); // History
         } else if (value == 2) {
           context.go('/profile'); // Profile
         }
