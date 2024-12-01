@@ -1,4 +1,5 @@
 import 'package:cheatshield/screens/camera_screen.dart';
+import 'package:cheatshield/screens/history_screen.dart';
 import 'package:cheatshield/screens/home_screen.dart';
 import 'package:cheatshield/screens/login_screen.dart';
 import 'package:cheatshield/screens/profile_screen.dart';
@@ -13,5 +14,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/camera', builder: (context, state) => const CameraScreen()),
     GoRoute(
         path: '/profile', builder: (context, state) => const ProfileScreen()),
+    GoRoute(
+        path: '/history', builder: (context, state) => const HistoryScreen()),
   ],
 );
