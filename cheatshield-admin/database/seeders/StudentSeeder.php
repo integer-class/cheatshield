@@ -16,7 +16,7 @@ class StudentSeeder extends Seeder
         $data = [
             [
                 'id' => \Illuminate\Support\Str::uuid(),
-                'user_id' => '9da11160-4edf-4f87-8745-e0f749c58cdb',
+                'user_id' => '9da11160-4edf-4f87-8745-e0f749c58cdb', // anu iki tak place ambe uuid student sg wes dibuat
                 'nim' => '1234567890',
                 'gender' => 'male',
             ]
