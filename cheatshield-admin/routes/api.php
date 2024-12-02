@@ -14,7 +14,7 @@ Route::group([
     // TODO: remove this later
     Route::get('/user', function (Request $request) {
         return $request->user();
-    })->middleware('auth:sanctum');
+    })->middleware('auth:sanctum,role:student');
 
     // auth routes
     Route::group([
