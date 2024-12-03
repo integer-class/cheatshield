@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../components/footer/bottom_navbar.dart'; // Pastikan path sesuai
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../components/footer/bottom_navbar.dart';
+import 'package:cheatshield/providers/web/auth_provider.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  State createState() => _ProfileScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authNotifier = ref.read(authProvider.notifier);
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  int _activeIndex = 2;
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -40,37 +37,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const Divider(),
-          ListTile(
-            title: const Text('Username'),
-            subtitle: const Text('zharsuke'),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {},
+          const ListTile(
+            title: Text('Username'),
+            subtitle: Text('zharsuke'),
+            trailing: Icon(Icons.arrow_forward_ios),
           ),
           const Divider(),
-          ListTile(
-            title: const Text('Name'),
-            subtitle: const Text('Al Azhar'),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {},
+          const ListTile(
+            title: Text('Name'),
+            subtitle: Text('Al Azhar'),
+            trailing: Icon(Icons.arrow_forward_ios),
           ),
           const Divider(),
-          ListTile(
-            title: const Text('NIM'),
-            subtitle: const Text('2241783756'),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {},
+          const ListTile(
+            title: Text('NIM'),
+            subtitle: Text('2241783756'),
+            trailing: Icon(Icons.arrow_forward_ios),
           ),
           const Divider(),
-          ListTile(
-            title: const Text('Update Password'),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {},
+          const ListTile(
+            title: Text('Update Password'),
+            trailing: Icon(Icons.arrow_forward_ios),
           ),
           const Divider(),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: ElevatedButton(
-              onPressed: () => context.go('/'),
+              onPressed: () async {
+                // Logout using authNotifier
+                await authNotifier.logout();
+
+                // Redirect to login page
+                if (context.mounted) {
+                  context.go('/');
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 minimumSize: const Size(double.infinity, 50),
@@ -91,16 +92,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
       bottomNavigationBar: BottomNavbar(
-        activeIndex: _activeIndex,
+        activeIndex: 2,
         onDestinationSelected: (int index) {
-          setState(() {
-            _activeIndex = index;
-          });
-
           if (index == 0) {
             context.go('/home');
           } else if (index == 1) {
-            // context.go('/history');
+            context.go('/history');
           } else if (index == 2) {
             context.go('/profile');
           }
