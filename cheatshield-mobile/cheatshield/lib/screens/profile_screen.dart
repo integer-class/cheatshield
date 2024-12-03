@@ -1,3 +1,6 @@
+import 'package:cheatshield/components/body/profile/logout_button.dart';
+import 'package:cheatshield/components/body/profile/profile_details.dart';
+import 'package:cheatshield/components/body/profile/profile_header.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,71 +27,11 @@ class ProfileScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: <Widget>[
-          const ListTile(
-            leading: CircleAvatar(
-              radius: 25,
-              backgroundImage: NetworkImage(
-                'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
-              ),
-            ),
-            title: Text(
-              'Al Azhar',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
+          const ProfileHeader(),
           const Divider(),
-          const ListTile(
-            title: Text('Username'),
-            subtitle: Text('zharsuke'),
-            trailing: Icon(Icons.arrow_forward_ios),
-          ),
+          const ProfileDetails(),
           const Divider(),
-          const ListTile(
-            title: Text('Name'),
-            subtitle: Text('Al Azhar'),
-            trailing: Icon(Icons.arrow_forward_ios),
-          ),
-          const Divider(),
-          const ListTile(
-            title: Text('NIM'),
-            subtitle: Text('2241783756'),
-            trailing: Icon(Icons.arrow_forward_ios),
-          ),
-          const Divider(),
-          const ListTile(
-            title: Text('Update Password'),
-            trailing: Icon(Icons.arrow_forward_ios),
-          ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: ElevatedButton(
-              onPressed: () async {
-                // Logout using authNotifier
-                await authNotifier.logout();
-
-                // Redirect to login page
-                if (context.mounted) {
-                  context.go('/');
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                minimumSize: const Size(double.infinity, 50),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              child: Text(
-                'Logout',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-              ),
-            ),
-          ),
+          LogoutButton(authNotifier: authNotifier),
         ],
       ),
       bottomNavigationBar: BottomNavbar(
