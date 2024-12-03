@@ -1,43 +1,50 @@
-# face_embedding.py
 import os
-import json
 import numpy as np
 from PIL import Image
-from facenet_pytorch import InceptionResnetV1
+import torch
 import torchvision.transforms as transforms
+from facenet_pytorch import InceptionResnetV1
 
 class FaceEmbedding:
-    def __init__(self):
-        """Initialize the FaceNet model for creating face embeddings"""
-        self.model = InceptionResnetV1(pretrained='vggface2').eval()
-        
-    def _process_image(self, image_path):
+    def __init__(self, batch_size=32):
         """
-        Process a single image and prepare it for embedding
+        Initialize the FaceNet model with GPU optimization
         
         Args:
-            image_path: Path to the face image
-            
-        Returns:
-            Processed image tensor ready for embedding
+            batch_size: Number of images to process in one batch
+        """
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model = InceptionResnetV1(pretrained='vggface2').eval().to(self.device)
+        self.batch_size = batch_size
+        
+        # Transformation for consistent image processing
+        self.transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        ])
+
+        print(self.device)
+
+    def _process_image(self, image_path, target_size=(160, 160)):
+        """
+        Process a single image with optional resizing
         """
         # Load and convert image
         image = Image.open(image_path)
         if image.mode != 'RGB':
             image = image.convert('RGB')
-            
+        
+        # Resize image to a standard size
+        image = image.resize(target_size, Image.LANCZOS)
+        
         # Convert to PyTorch tensor and normalize
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
-        ])
-        image_tensor = transform(image).unsqueeze(0)  # Add batch dimension
+        image_tensor = self.transform(image).unsqueeze(0).to(self.device)
         
         return image_tensor
 
     def generate_embeddings(self, faces_dir):
         """
-        Generate embeddings for all face images in directory
+        Generate embeddings for all face images in directory with batch processing
         
         Args:
             faces_dir: Directory containing face images
@@ -47,70 +54,74 @@ class FaceEmbedding:
         """
         embeddings_list = []
         face_files = [f for f in os.listdir(faces_dir) 
-                     if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+                    if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
         
         print(f"Generating embeddings for {len(face_files)} faces...")
         
-        for face_file in face_files:
-            face_path = os.path.join(faces_dir, face_file)
-            
-            try:
-                # Process image
-                image_tensor = self._process_image(face_path)
+        # Process images in batches
+        with torch.no_grad():
+            for i in range(0, len(face_files), self.batch_size):
+                batch_files = face_files[i:i+self.batch_size]
+                batch_tensors = []
+                batch_metadata = []
                 
-                # Generate embedding
-                embedding = self.model(image_tensor)
+                for face_file in batch_files:
+                    face_path = os.path.join(faces_dir, face_file)
+                    
+                    try:
+                        # Process image
+                        image_tensor = self._process_image(face_path)
+                        batch_tensors.append(image_tensor)
+                        
+                        # Extract confidence from filename
+                        confidence = float(face_file.split("conf_")[1].split(".")[0])
+                        batch_metadata.append({
+                            "filename": face_file,
+                            "confidence": confidence
+                        })
+                        
+                    except Exception as e:
+                        print(f"Error processing {face_file}: {str(e)}")
+                        continue
                 
-                # Convert embedding to list
-                embedding_list = embedding.detach().numpy().squeeze().tolist()
+                # Skip if no valid images in batch
+                if not batch_tensors:
+                    continue
                 
-                # Extract confidence from filename
-                confidence = float(face_file.split("conf_")[1].split(".")[0])
+                # Ensure consistent tensor sizes using padding or resizing
+                max_height = max(tensor.shape[2] for tensor in batch_tensors)
+                max_width = max(tensor.shape[3] for tensor in batch_tensors)
                 
-                embeddings_list.append({
-                    "embedding": embedding_list,
-                    "confidence": confidence
-                })
+                padded_tensors = []
+                for tensor in batch_tensors:
+                    # Pad tensor to max dimensions
+                    pad_height = max_height - tensor.shape[2]
+                    pad_width = max_width - tensor.shape[3]
+                    
+                    padded_tensor = torch.nn.functional.pad(tensor, 
+                        (0, pad_width, 0, pad_height), 
+                        mode='constant', 
+                        value=0
+                    )
+                    padded_tensors.append(padded_tensor)
                 
-                print(f"Processed {face_file}")
+                # Batch processing
+                batch_input = torch.cat(padded_tensors)
+                batch_embeddings = self.model(batch_input)
                 
-            except Exception as e:
-                print(f"Error processing {face_file}: {str(e)}")
-                continue
+                # Convert and process batch embeddings
+                for j, embedding in enumerate(batch_embeddings):
+                    embeddings_list.append({
+                        "embedding": embedding.cpu().numpy().tolist(),
+                        "confidence": batch_metadata[j]["confidence"]
+                    })
+                    
+                    print(f"Processed {batch_metadata[j]['filename']}")
+                
+                # Clear GPU cache periodically
+                torch.cuda.empty_cache()
         
         return embeddings_list
-
-    # def save_embeddings_json(self, embeddings, output_path):
-    #     """
-    #     Save embeddings in JSON format
-        
-    #     Args:
-    #         embeddings: List of dictionaries containing embeddings and confidence levels
-    #         output_path: Path to save the JSON file
-        
-    #     Returns:
-    #         Dictionary containing embeddings and metadata
-    #     """
-    #     # Create output directory if it doesn't exist
-    #     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-    #     # Prepare data with metadata
-    #     data = {
-    #         "embeddings": embeddings,
-    #         "metadata": {
-    #             "model": "facenet_vggface2",
-    #             "embedding_size": len(embeddings[0]["embedding"]) if embeddings else 0,
-    #             "total_faces": len(embeddings)
-    #         }
-    #     }
-        
-    #     # Save as JSON
-    #     with open(output_path, 'w') as f:
-    #         json.dump(data, f, indent=2)
-            
-    #     print(f"Saved JSON embeddings to: {output_path}")
-        
-    #     return data
 
     def save_embeddings_binary(self, embeddings, output_path):
         """
@@ -146,28 +157,3 @@ class FaceEmbedding:
         print(f"Saved binary embeddings to: {output_path}")
         
         return embeddings_array
-
-# def load_embeddings_json(input_path):
-#     """
-#     Load embeddings from JSON file
-    
-#     Args:
-#         input_path: Path to JSON embeddings file
-        
-#     Returns:
-#         Dictionary containing embeddings and metadata
-#     """
-#     with open(input_path, 'r') as f:
-#         return json.load(f)
-
-def load_embeddings_binary(input_path):
-    """
-    Load embeddings from binary file
-    
-    Args:
-        input_path: Path to binary embeddings file
-        
-    Returns:
-        Structured numpy array containing embeddings and confidence levels
-    """
-    return np.load(input_path, allow_pickle=True)

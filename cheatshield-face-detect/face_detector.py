@@ -19,6 +19,8 @@ class FaceDetector:
             margin=20
         )
 
+        print(self.device)
+
     async def process_frame(self, frame_path, faces_dir, processed_dir):
         """
         Process a single frame to detect faces
@@ -28,6 +30,7 @@ class FaceDetector:
             faces_dir: Directory to save extracted faces
             processed_dir: Directory to save processed frames
         """
+        conf_level = 0.9
         # Read image with PIL
         image = Image.open(frame_path)
         
@@ -49,7 +52,7 @@ class FaceDetector:
         
         # Process each detected face
         for i, (box, prob) in enumerate(zip(boxes, probs)):
-            if prob < 0.9:  # Skip low confidence detections
+            if prob < conf_level:  # Skip low confidence detections
                 continue
                 
             # Get coordinates
@@ -78,7 +81,7 @@ class FaceDetector:
         processed_path = os.path.join(processed_dir, os.path.basename(frame_path))
         cv2.imwrite(processed_path, opencv_image)
         
-        return len([prob for prob in probs if prob > 0.9])
+        return len([prob for prob in probs if prob > conf_level])
 
 async def process_frame(detector, frames_dir, faces_dir, processed_dir, filename):
     frame_path = os.path.join(frames_dir, filename)

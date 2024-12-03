@@ -6,8 +6,11 @@ from frame_extractor import extract_frames
 from face_detector import detect_faces_in_frames
 from timer import PerformanceTimer
 from face_embedding import FaceEmbedding
+import torch
 
 app = FastAPI()
+
+print(torch.cuda.is_available())
 
 WORKSPACE_DIR = "workspace"
 INPUT_VIDEO_PATH = os.path.join(WORKSPACE_DIR, "input.mp4")
@@ -21,30 +24,34 @@ async def upload_video(file: UploadFile = File(...)):
     """
     Upload video file, extract frames, detect faces, and generate embeddings
     """
+    
+    timer = PerformanceTimer()
+    
     try:
-        # Create workspace directories
-        os.makedirs(WORKSPACE_DIR, exist_ok=True)
-        os.makedirs(FRAMES_DIR, exist_ok=True)
-        os.makedirs(FACES_DIR, exist_ok=True)
-        os.makedirs(PROCESSED_FRAMES_DIR, exist_ok=True)
-        # os.makedirs(EMBEDDINGS_DIR, exist_ok=True)
+        with timer.timer("Prepare Workspace"):
+            # Create workspace directories
+            os.makedirs(WORKSPACE_DIR, exist_ok=True)
+            os.makedirs(FRAMES_DIR, exist_ok=True)
+            os.makedirs(FACES_DIR, exist_ok=True)
+            os.makedirs(PROCESSED_FRAMES_DIR, exist_ok=True)
+            os.makedirs(EMBEDDINGS_DIR, exist_ok=True)
 
-        # Clean up previous files
-        for dir_path in [FRAMES_DIR, FACES_DIR, PROCESSED_FRAMES_DIR, EMBEDDINGS_DIR]:
-        # for dir_path in [FRAMES_DIR, FACES_DIR, PROCESSED_FRAMES_DIR]:
-            for file_name in os.listdir(dir_path):
-                file_path = os.path.join(dir_path, file_name)
-                try:
-                    if os.path.isfile(file_path):
-                        os.unlink(file_path)
-                except Exception as e:
-                    print(f"Error: {e}")
+        with timer.timer("Clean Up File"):
+            # Clean up previous files
+            for dir_path in [FRAMES_DIR, FACES_DIR, PROCESSED_FRAMES_DIR, EMBEDDINGS_DIR]:
+            # for dir_path in [FRAMES_DIR, FACES_DIR, PROCESSED_FRAMES_DIR]:
+                for file_name in os.listdir(dir_path):
+                    file_path = os.path.join(dir_path, file_name)
+                    try:
+                        if os.path.isfile(file_path):
+                            os.unlink(file_path)
+                    except Exception as e:
+                        print(f"Error: {e}")
 
-        # Save uploaded video
-        with open(INPUT_VIDEO_PATH, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
-        timer = PerformanceTimer()
+        with timer.timer("Save Upload File"):
+            # Save uploaded video
+            with open(INPUT_VIDEO_PATH, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
 
         with timer.timer("Frame Extraction"):
             # Extract frames
@@ -58,11 +65,8 @@ async def upload_video(file: UploadFile = File(...)):
             # Generate embeddings
             face_embedding = FaceEmbedding()
             embeddings = face_embedding.generate_embeddings(FACES_DIR)
-            
-            # # Save embeddings in JSON format
-            # json_output_path = os.path.join(EMBEDDINGS_DIR, "embeddings.json")
-            # json_data = face_embedding.save_embeddings_json(embeddings, json_output_path)
-            
+
+        with timer.timer("Save Embedding"):
             # Save embeddings in binary format
             binary_output_path = os.path.join(EMBEDDINGS_DIR, "embeddings.npy")
             binary_data = face_embedding.save_embeddings_binary(embeddings, binary_output_path)
