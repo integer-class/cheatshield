@@ -10,25 +10,26 @@ class LoginForm extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
-    final authState = ref.watch(authProvider);
 
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: TextField(
-            decoration: InputDecoration(
+            controller: emailController, // Assign the controller
+            decoration: const InputDecoration(
               labelText: 'Email',
               border: OutlineInputBorder(),
             ),
           ),
         ),
         const SizedBox(height: 16),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: TextField(
+            controller: passwordController, // Assign the controller
             obscureText: true,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
             ),
@@ -42,11 +43,11 @@ class LoginForm extends ConsumerWidget {
               final email = emailController.text;
               final password = passwordController.text;
 
-              // Panggil fungsi login dari Riverpod provider
+              // Call the login function from the Riverpod provider
               await ref.read(authProvider.notifier).login(email, password);
 
-              // Jika login berhasil, arahkan ke halaman home
-              if (authState != null) {
+              // If login is successful, navigate to the home page
+              if (ref.read(authProvider) != null) {
                 context.go('/home');
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -71,14 +72,6 @@ class LoginForm extends ConsumerWidget {
             ),
           ),
         ),
-        // if (authState == null)
-        //   const Padding(
-        //     padding: EdgeInsets.only(top: 16),
-        //     child: Text(
-        //       'Login failed, please try again.',
-        //       style: TextStyle(color: Colors.red),
-        //     ),
-        //   ),
       ],
     );
   }

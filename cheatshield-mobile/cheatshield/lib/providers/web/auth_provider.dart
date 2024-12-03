@@ -11,13 +11,17 @@ class AuthNotifier extends StateNotifier<String?> {
   final AuthService _authService = AuthService();
 
   // login
-  Future<void> login(String email, String password) async {
+  Future<bool> login(String email, String password) async {
     final token = await _authService.login(email, password);
 
-    if (token != null) {
+    if (token != null &&
+        !token.contains('email') &&
+        !token.contains('password')) {
       state = token;
+      return true;
     } else {
       state = null;
+      return false;
     }
   }
 
