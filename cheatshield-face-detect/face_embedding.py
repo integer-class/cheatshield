@@ -4,6 +4,7 @@ import json
 import numpy as np
 from PIL import Image
 from facenet_pytorch import InceptionResnetV1
+import torchvision.transforms as transforms
 
 class FaceEmbedding:
     def __init__(self):
@@ -18,20 +19,21 @@ class FaceEmbedding:
             image_path: Path to the face image
             
         Returns:
-            Processed image array ready for embedding
+            Processed image tensor ready for embedding
         """
         # Load and convert image
         image = Image.open(image_path)
         if image.mode != 'RGB':
             image = image.convert('RGB')
             
-        # Convert to numpy array and normalize
-        image_array = np.array(image)
-        image_array = np.transpose(image_array, (2, 0, 1))
-        image_array = image_array / 255.0
-        image_array = np.expand_dims(image_array, axis=0)
+        # Convert to PyTorch tensor and normalize
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        ])
+        image_tensor = transform(image).unsqueeze(0)  # Add batch dimension
         
-        return image_array
+        return image_tensor
 
     def generate_embeddings(self, faces_dir):
         """
@@ -54,10 +56,10 @@ class FaceEmbedding:
             
             try:
                 # Process image
-                image_array = self._process_image(face_path)
+                image_tensor = self._process_image(face_path)
                 
                 # Generate embedding
-                embedding = self.model(image_array)
+                embedding = self.model(image_tensor)
                 
                 # Convert embedding to list
                 embedding_list = embedding.detach().numpy().squeeze().tolist()
@@ -78,37 +80,37 @@ class FaceEmbedding:
         
         return embeddings_list
 
-    def save_embeddings_json(self, embeddings, output_path):
-        """
-        Save embeddings in JSON format
+    # def save_embeddings_json(self, embeddings, output_path):
+    #     """
+    #     Save embeddings in JSON format
         
-        Args:
-            embeddings: List of dictionaries containing embeddings and confidence levels
-            output_path: Path to save the JSON file
+    #     Args:
+    #         embeddings: List of dictionaries containing embeddings and confidence levels
+    #         output_path: Path to save the JSON file
         
-        Returns:
-            Dictionary containing embeddings and metadata
-        """
-        # Create output directory if it doesn't exist
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    #     Returns:
+    #         Dictionary containing embeddings and metadata
+    #     """
+    #     # Create output directory if it doesn't exist
+    #     os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
-        # Prepare data with metadata
-        data = {
-            "embeddings": embeddings,
-            "metadata": {
-                "model": "facenet_vggface2",
-                "embedding_size": len(embeddings[0]["embedding"]) if embeddings else 0,
-                "total_faces": len(embeddings)
-            }
-        }
+    #     # Prepare data with metadata
+    #     data = {
+    #         "embeddings": embeddings,
+    #         "metadata": {
+    #             "model": "facenet_vggface2",
+    #             "embedding_size": len(embeddings[0]["embedding"]) if embeddings else 0,
+    #             "total_faces": len(embeddings)
+    #         }
+    #     }
         
-        # Save as JSON
-        with open(output_path, 'w') as f:
-            json.dump(data, f, indent=2)
+    #     # Save as JSON
+    #     with open(output_path, 'w') as f:
+    #         json.dump(data, f, indent=2)
             
-        print(f"Saved JSON embeddings to: {output_path}")
+    #     print(f"Saved JSON embeddings to: {output_path}")
         
-        return data
+    #     return data
 
     def save_embeddings_binary(self, embeddings, output_path):
         """
@@ -145,18 +147,18 @@ class FaceEmbedding:
         
         return embeddings_array
 
-def load_embeddings_json(input_path):
-    """
-    Load embeddings from JSON file
+# def load_embeddings_json(input_path):
+#     """
+#     Load embeddings from JSON file
     
-    Args:
-        input_path: Path to JSON embeddings file
+#     Args:
+#         input_path: Path to JSON embeddings file
         
-    Returns:
-        Dictionary containing embeddings and metadata
-    """
-    with open(input_path, 'r') as f:
-        return json.load(f)
+#     Returns:
+#         Dictionary containing embeddings and metadata
+#     """
+#     with open(input_path, 'r') as f:
+#         return json.load(f)
 
 def load_embeddings_binary(input_path):
     """
