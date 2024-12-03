@@ -76,28 +76,48 @@ class AuthController extends Controller
     }
 
     public function updateProfile(Request $request): JsonResponse
-    {
-        $user = $request->user();
+{
+    $user = $request->user();
 
-        // if email field is filled, make sure it's a valid format
-        if ($request->has('email')) {
-            if (! filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
-                return response()->json([
-                    'message' => 'Invalid email format',
-                ], JsonResponse::HTTP_BAD_REQUEST);
-            }
+    // Validate email if provided
+    if ($request->has('email') && !filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+        return response()->json([
+            'message' => 'Invalid email format',
+        ], JsonResponse::HTTP_BAD_REQUEST);
+    }
+
+    // Update user fields if new data is provided
+    if ($request->filled('name')) {
+        $user->name = $request->name;
+    }
+    if ($request->filled('email')) {
+        $user->email = $request->email;
+    }
+
+    // Ensure the student relation is loaded
+    $student = $user->student;
+    if ($student) {
+        if ($request->filled('nim')) {
+            $student->nim = $request->nim;
+        }
+        if ($request->filled('gender')) {
+            $student->gender = $request->gender;
+        }
+        if ($request->filled('photo')) {
+            $student->photo = $request->photo;
         }
 
-        $user->name ??= $request->name;
-        $user->email ??= $request->email;
-        $user->nim ??= $request->nim;
-        $user->gender ??= $request->gender;
-        $user->photo ??= $request->photo;
-
-        $user->save();
-
-        return response()->json([
-            'message' => 'Profile updated successfully',
-        ]);
+        // Save changes to the student relation
+        $student->save();
     }
+
+    // Save changes to the user
+    $user->save();
+
+    return response()->json([
+        'message' => 'Profile updated successfully',
+    ]);
+}
+
+
 }
