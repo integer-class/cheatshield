@@ -20,4 +20,13 @@ class AuthNotifier extends StateNotifier<String?> {
       state = null;
     }
   }
+
+  // logout
+  Future<void> logout() async {
+    final message = await _authService.logout(state!);
+
+    if (message != null) {
+      state = null;
+    }
+  }
 }
