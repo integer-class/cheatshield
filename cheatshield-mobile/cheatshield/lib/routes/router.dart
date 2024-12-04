@@ -4,6 +4,7 @@ import 'package:cheatshield/screens/home_screen.dart';
 import 'package:cheatshield/screens/login_screen.dart';
 import 'package:cheatshield/screens/profile_screen.dart';
 import 'package:cheatshield/screens/quiz_screen.dart';
+import 'package:cheatshield/screens/update_profile_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -16,5 +17,8 @@ final GoRouter appRouter = GoRouter(
         path: '/profile', builder: (context, state) => const ProfileScreen()),
     GoRoute(
         path: '/history', builder: (context, state) => const HistoryScreen()),
+    GoRoute(
+        path: '/update-profile',
+        builder: (context, state) => const UpdateProfileScreen()),
   ],
 );

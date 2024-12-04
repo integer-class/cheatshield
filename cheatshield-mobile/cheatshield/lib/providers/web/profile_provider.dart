@@ -17,3 +17,16 @@ final profileProvider =
 
   return profile; // Return profile data
 });
+
+final profileUpdateProvider =
+    FutureProvider.family<Map<String, dynamic>, Map<String, dynamic>>(
+        (ref, data) async {
+  final profileService = ref.watch(profileServiceProvider);
+  final profile = await profileService.updateProfile(data['token'], data);
+
+  if (profile.containsKey('error')) {
+    throw Exception(profile['error']);
+  }
+
+  return profile; // Return profile data
+});
