@@ -5,7 +5,7 @@ class AuthService {
 
   // baseUrl
   final String baseUrl =
-      'http://192.168.1.8:80/api/v1'; // Change this to your own IP address
+      'http://192.168.254.146:80/api/v1'; // Change this to your own IP address
 
   // Login
   Future<String?> login(String email, String password) async {
