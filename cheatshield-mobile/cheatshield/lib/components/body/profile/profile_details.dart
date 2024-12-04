@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cheatshield/providers/web/profile_provider.dart';
-import 'package:cheatshield/providers/web/auth_provider.dart'; // Using authProvider
+import 'package:cheatshield/providers/web/auth_provider.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileDetails extends ConsumerWidget {
   const ProfileDetails({super.key});
@@ -23,26 +24,58 @@ class ProfileDetails extends ConsumerWidget {
         return Column(
           children: <Widget>[
             ListTile(
-              title: const Text('Name'),
-              subtitle: Text(profile['name'] ?? 'No Name'),
-              trailing: const Icon(Icons.arrow_forward_ios),
+              title: const Text(
+                'Name',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                profile['name'] ?? 'No Name',
+                style: const TextStyle(color: Colors.black),
+              ),
             ),
             const Divider(),
             ListTile(
-              title: const Text('Email'),
-              subtitle: Text(profile['email'] ?? 'No Email'),
-              trailing: const Icon(Icons.arrow_forward_ios),
+              title: const Text(
+                'Email',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                profile['email'] ?? 'No Email',
+                style: const TextStyle(color: Colors.black),
+              ),
             ),
             const Divider(),
             ListTile(
-              title: const Text('NIM'),
-              subtitle: Text(profile['nim'] ?? 'No NIM'),
-              trailing: const Icon(Icons.arrow_forward_ios),
+              title: const Text(
+                'NIM',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                profile['nim'] ?? 'No NIM',
+                style: const TextStyle(color: Colors.black),
+              ),
             ),
             const Divider(),
-            const ListTile(
-              title: Text('Update Password'),
-              trailing: Icon(Icons.arrow_forward_ios),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+              child: ElevatedButton(
+                onPressed: () => context.go('/update-profile'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  minimumSize: const Size(double.infinity, 50),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                child: Text(
+                  'Update Profile',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                ),
+              ),
             ),
           ],
         );

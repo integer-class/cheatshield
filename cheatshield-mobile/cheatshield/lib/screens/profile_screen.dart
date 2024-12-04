@@ -30,7 +30,6 @@ class ProfileScreen extends ConsumerWidget {
           const ProfileHeader(),
           const Divider(),
           const ProfileDetails(),
-          const Divider(),
           LogoutButton(authNotifier: authNotifier),
         ],
       ),
