@@ -115,11 +115,10 @@ async def detect_faces_in_frames(frames_dir, faces_dir, processed_dir):
     
     # Process each frame
     for filename in image_files:
-        with multiprocessing.Pool(processes=4) as pool:
-            frame_path = os.path.join(frames_dir, filename)
-            faces_found = await detector.process_frame(frame_path, faces_dir, processed_dir)
-            total_faces += faces_found
-            processed_frames += 1
+        frame_path = os.path.join(frames_dir, filename)
+        faces_found = await detector.process_frame(frame_path, faces_dir, processed_dir)
+        total_faces += faces_found
+        processed_frames += 1
         
         # Print progress
         print(f"Processed {filename}: {faces_found} faces detected")
