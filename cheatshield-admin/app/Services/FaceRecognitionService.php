@@ -14,7 +14,7 @@ class FaceRecognitionService
     {
         $this->client = new Client([
             'base_uri' => env('FACE_RECOGNITION_SERVICE_URL'),
-            'timeout' => 60 // 1 minutes since the video embedding can take a while
+            'timeout' => 120 // 2 minutes since the video embedding can take a while
         ]);
     }
 
