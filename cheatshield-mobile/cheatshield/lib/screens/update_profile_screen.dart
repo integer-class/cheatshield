@@ -89,6 +89,9 @@ class UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
                     };
 
                     ref.read(profileUpdateProvider(data).future).then((value) {
+                      if (token != null) {
+                        ref.invalidate(profileProvider(token));
+                      }
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Profile updated!')),
                       );
