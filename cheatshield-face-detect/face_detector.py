@@ -4,12 +4,17 @@ import cv2
 import torch
 from facenet_pytorch import MTCNN
 import numpy as np
+from typing import cast, final
 from PIL import Image
-import multiprocessing
+from torch._prims_common import DeviceLikeType
 
+@final
 class FaceDetector:
+    device: DeviceLikeType
+    mtcnn: MTCNN
+    confidence_level = 0.95
+
     def __init__(self):
-        # Initialize MTCNN
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.mtcnn = MTCNN(
             keep_all=True,
@@ -19,110 +24,80 @@ class FaceDetector:
             margin=20
         )
 
-        print(self.device)
-
-    async def process_frame(self, frame_path, faces_dir, processed_dir):
-        """
-        Process a single frame to detect faces
-        
-        Args:
-            frame_path: Path to input frame
-            faces_dir: Directory to save extracted faces
-            processed_dir: Directory to save processed frames
-        """
-        conf_level = 0.9
+    async def process_frame(self, frame_path: str, faces_dir: str, processed_dir: str):
         # Read image with PIL
         image = Image.open(frame_path)
-        
+
         # Convert PIL image to RGB if it's not
         if image.mode != 'RGB':
             image = image.convert('RGB')
-        
-        # Detect faces
-        boxes, probs = self.mtcnn.detect(image)
-        
+
+        boxes, probs, _extra = self.mtcnn.detect(image, landmarks=True)
+
         if boxes is None:
-            # Save original frame to processed dir if no faces found
-            processed_path = os.path.join(processed_dir, os.path.basename(frame_path))
-            image.save(processed_path)
+            # ignore images without faces
             return 0
-        
-        # Convert PIL image to OpenCV format for drawing
+
         opencv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-        
-        # Process each detected face
-        for i, (box, prob) in enumerate(zip(boxes, probs)):
-            if prob < conf_level:  # Skip low confidence detections
+
+        for i, (box, prob) in enumerate(zip(cast(list[tuple[float,float,float,float]], boxes), cast(list[float], probs))):
+            # skip low confidence faces, the threshold here is 95%
+            if prob < self.confidence_level:
                 continue
-                
-            # Get coordinates
+
             x1, y1, x2, y2 = [int(coord) for coord in box]
-            
-            # Draw red rectangle
-            cv2.rectangle(opencv_image, (x1, y1), (x2, y2), (0, 0, 255), 2)
-            
-            # Add confidence score text
+
+            _ = cv2.rectangle(
+                img=opencv_image,
+                pt1=(x1, y1),
+                pt2=(x2, y2),
+                color=(0, 0, 255),
+                thickness=2
+            )
+
             conf_text = f"{prob:.2f}"
-            cv2.putText(opencv_image, conf_text, (x1, y1-10), 
+            _ = cv2.putText(opencv_image, conf_text, (x1, y1-10),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            
-            # Extract and save face region
+
             face_region = opencv_image[y1:y2, x1:x2]
-            
-            # Generate face filename
+
             base_name = os.path.splitext(os.path.basename(frame_path))[0]
             face_filename = f"{base_name}_face_{i}_conf_{prob:.2f}.png"
             face_path = os.path.join(faces_dir, face_filename)
-            
-            # Save face
-            cv2.imwrite(face_path, face_region)
-        
-        # Save processed frame
+
+            _ = cv2.imwrite(face_path, face_region)
+
         processed_path = os.path.join(processed_dir, os.path.basename(frame_path))
-        cv2.imwrite(processed_path, opencv_image)
-        
-        return len([prob for prob in probs if prob > conf_level])
+        _ = cv2.imwrite(processed_path, opencv_image)
 
-async def process_frame(detector, frames_dir, faces_dir, processed_dir, filename):
+        return len([prob for prob in cast(list[float], probs) if prob > self.confidence_level])
+
+async def process_frame(detector: FaceDetector,
+                        frames_dir: str,
+                        faces_dir: str,
+                        processed_dir: str,
+                        filename: str):
     frame_path = os.path.join(frames_dir, filename)
-    faces_found = detector.process_frame(frame_path, faces_dir, processed_dir)
-    total_faces += faces_found
-    processed_frames += 1
-    
-    # Print progress
-    print(f"Processed {filename}: {faces_found} faces detected")
+    faces_found = await detector.process_frame(frame_path, faces_dir, processed_dir)
+    return faces_found
 
-async def detect_faces_in_frames(frames_dir, faces_dir, processed_dir):
-    """
-    Process all frames and detect faces
-    
-    Args:
-        frames_dir: Input frames directory
-        faces_dir: Output directory for face images
-        processed_dir: Output directory for processed frames
-    """
-    # Create output directories
+async def detect_faces_in_frames(frames_dir: str, faces_dir: str, processed_dir: str):
     os.makedirs(faces_dir, exist_ok=True)
     os.makedirs(processed_dir, exist_ok=True)
-    
+
     detector = FaceDetector()
     total_faces = 0
     processed_frames = 0
-    
-    # Get list of image files
-    image_files = [f for f in os.listdir(frames_dir) 
+
+    image_files = [f for f in os.listdir(frames_dir)
                   if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-    
-    # Process each frame
+
     for filename in image_files:
         frame_path = os.path.join(frames_dir, filename)
         faces_found = await detector.process_frame(frame_path, faces_dir, processed_dir)
         total_faces += faces_found
         processed_frames += 1
-        
-        # Print progress
-        print(f"Processed {filename}: {faces_found} faces detected")
-    
+
     return {
         "processed_frames": processed_frames,
         "total_faces": total_faces

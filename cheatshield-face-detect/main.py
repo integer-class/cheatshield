@@ -1,76 +1,74 @@
-# main.py
 import os
 import shutil
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from typing import Annotated, Any
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from frame_extractor import extract_frames
 from face_detector import detect_faces_in_frames
 from timer import PerformanceTimer
 from face_embedding import FaceEmbedding
+from pydantic import BaseModel
 import torch
 
+from util import prepare_workspace_dir_for_user
+
+print("Face Detection API")
+print("Is CUDA Available: ", torch.cuda.is_available())
+
 app = FastAPI()
+@app.get("/")
+async def root():
+    return {"message": "Face Detection API"}
 
-print(torch.cuda.is_available())
-
-WORKSPACE_DIR = "workspace"
-INPUT_VIDEO_PATH = os.path.join(WORKSPACE_DIR, "input.mp4")
-FRAMES_DIR = os.path.join(WORKSPACE_DIR, "frames")
-FACES_DIR = os.path.join(WORKSPACE_DIR, "faces")
-PROCESSED_FRAMES_DIR = os.path.join(WORKSPACE_DIR, "processed_frames")
-EMBEDDINGS_DIR = os.path.join(WORKSPACE_DIR, "embeddings")
-
-@app.post("/upload-video")
-async def upload_video(file: UploadFile = File(...)):
+@app.get("/api/v1/healthz")
+async def health():
     """
-    Upload video file, extract frames, detect faces, and generate embeddings
+    Health check endpoint
     """
-    
+    return {"status": "ok"}
+
+class GenerateEmbeddingRequest(BaseModel):
+    video: Annotated[UploadFile, File(...)]
+    user_id: Annotated[str, Form()]
+
+@app.post("/api/v1/face-recognition/embedding")
+async def generate_embedding(user_id: Annotated[str,Form()], video: Annotated[UploadFile, File(...)]) -> dict[str, Any]:
+    """
+    Generates embeddings for the faces in the uploaded video
+    """
+
     timer = PerformanceTimer()
-    
+
+    dirs = prepare_workspace_dir_for_user(user_id)
+
     try:
-        with timer.timer("Prepare Workspace"):
-            # Create workspace directories
-            os.makedirs(WORKSPACE_DIR, exist_ok=True)
-            os.makedirs(FRAMES_DIR, exist_ok=True)
-            os.makedirs(FACES_DIR, exist_ok=True)
-            os.makedirs(PROCESSED_FRAMES_DIR, exist_ok=True)
-            os.makedirs(EMBEDDINGS_DIR, exist_ok=True)
+        with timer.timer("Clean up files for user"):
+            for file_name in os.listdir(dirs['user_workspace_dir']):
+                file_path = os.path.join(dirs['user_workspace_dir'], file_name)
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
 
-        with timer.timer("Clean Up File"):
-            # Clean up previous files
-            for dir_path in [FRAMES_DIR, FACES_DIR, PROCESSED_FRAMES_DIR, EMBEDDINGS_DIR]:
-            # for dir_path in [FRAMES_DIR, FACES_DIR, PROCESSED_FRAMES_DIR]:
-                for file_name in os.listdir(dir_path):
-                    file_path = os.path.join(dir_path, file_name)
-                    try:
-                        if os.path.isfile(file_path):
-                            os.unlink(file_path)
-                    except Exception as e:
-                        print(f"Error: {e}")
+        with timer.timer("Save uploaded file into a buffer"):
+            with open(dirs["input_video_path"], "wb") as buffer:
+                shutil.copyfileobj(video.file, buffer)
 
-        with timer.timer("Save Upload File"):
-            # Save uploaded video
-            with open(INPUT_VIDEO_PATH, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
+        with timer.timer("Extract frames"):
+            frame_paths = await extract_frames(dirs["input_video_path"], dirs["frames_dir"])
 
-        with timer.timer("Frame Extraction"):
-            # Extract frames
-            frame_paths = await extract_frames(INPUT_VIDEO_PATH, FRAMES_DIR)
-            
-        with timer.timer("Face Detection"):
-            # Detect faces
-            results = await detect_faces_in_frames(FRAMES_DIR, FACES_DIR, PROCESSED_FRAMES_DIR)
-        
-        with timer.timer("Embedding Generation"):
-            # Generate embeddings
+        with timer.timer("Detect faces"):
+            results = await detect_faces_in_frames(
+                frames_dir=dirs["frames_dir"],
+                faces_dir=dirs["faces_dir"],
+                processed_dir=dirs["processed_frames_dir"]
+            )
+
+        with timer.timer("Generate embeddings"):
             face_embedding = FaceEmbedding()
-            embeddings = face_embedding.generate_embeddings(FACES_DIR)
+            embeddings = face_embedding.generate_embeddings(dirs["faces_dir"])
 
-        with timer.timer("Save Embedding"):
-            # Save embeddings in binary format
+        with timer.timer("Save embeddings"):
             binary_output_path = os.path.join(EMBEDDINGS_DIR, "embeddings.npy")
-            binary_data = face_embedding.save_embeddings_binary(embeddings, binary_output_path)
-        
+            face_embedding.save_embeddings_binary(embeddings, binary_output_path)
+
         return {
             "status": "success",
             "message": "Video processed successfully",
@@ -82,10 +80,12 @@ async def upload_video(file: UploadFile = File(...)):
             # "embeddings_binary": binary_data.tolist(),
             "facenet_status": timer.get_stats()
         }
-        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/")
-async def root():
-    return {"message": "Face Detection API"}
+@app.post("/api/v1/face-recognition/check")
+async def check_face_position():
+    """
+    Checks if the frame being sent matches the face in the embedding database
+    """
+
