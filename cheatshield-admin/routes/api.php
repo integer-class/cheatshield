@@ -3,7 +3,6 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FaceRecognitionController;
 use App\Http\Controllers\Api\V1\QuizSessionController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // V1 Routes
@@ -11,11 +10,6 @@ Route::group([
     'prefix' => 'v1',
     'as' => 'api.v1.',
 ], function () {
-    // TODO: remove this later
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    })->middleware('auth:sanctum,role:student');
-
     // auth routes
     Route::group([
         'prefix' => 'auth',
@@ -32,8 +26,10 @@ Route::group([
         'as' => 'quiz.',
         'middleware' => 'auth:sanctum,role:student',
     ], function () {
-        Route::get('/join/{code}', [QuizSessionController::class, 'join']);
-        Route::get('/history', [QuizSessionController::class, 'history']);
+        Route::post('/join/{code}', [QuizSessionController::class, 'join'])->name('join');
+        Route::post('/answer', [QuizSessionController::class, 'submitAnswerForQuestion'])->name('answer');
+        Route::post('/finish', [QuizSessionController::class, 'finishQuizSession'])->name('finish');
+        Route::get('/history', [QuizSessionController::class, 'history'])->name('history');
     });
 
     // user related operations
