@@ -14,7 +14,8 @@ from util import prepare_workspace_dir_for_user
 print("Face Detection API")
 print("Is CUDA Available: ", torch.cuda.is_available())
 
-app = FastAPI()
+app = FastAPI(debug=True)
+
 @app.get("/")
 async def root():
     return {"message": "Face Detection API"}
@@ -66,7 +67,7 @@ async def generate_embedding(user_id: Annotated[str,Form()], video: Annotated[Up
             embeddings = face_embedding.generate_embeddings(dirs["faces_dir"])
 
         with timer.timer("Save embeddings"):
-            binary_output_path = os.path.join(EMBEDDINGS_DIR, "embeddings.npy")
+            binary_output_path = os.path.join(dirs["embeddings_dir"], "embeddings.npy")
             face_embedding.save_embeddings_binary(embeddings, binary_output_path)
 
         return {

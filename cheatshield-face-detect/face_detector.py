@@ -65,10 +65,20 @@ class FaceDetector:
             face_filename = f"{base_name}_face_{i}_conf_{prob:.2f}.png"
             face_path = os.path.join(faces_dir, face_filename)
 
-            _ = cv2.imwrite(face_path, face_region)
+            # skip faces that are too small
+            if face_region.size == 0:
+                continue
+
+            try:
+                _ = cv2.imwrite(face_path, face_region)
+            except Exception as e:
+                print(f"Error writing face: {e} into {face_path}")
 
         processed_path = os.path.join(processed_dir, os.path.basename(frame_path))
-        _ = cv2.imwrite(processed_path, opencv_image)
+        try:
+            _ = cv2.imwrite(processed_path, opencv_image)
+        except Exception as e:
+            print(f"Error writing face: {e} into {processed_path}")
 
         return len([prob for prob in cast(list[float], probs) if prob > self.confidence_level])
 
