@@ -1,3 +1,4 @@
+import io
 import os
 from typing import cast
 import numpy as np
@@ -123,3 +124,27 @@ class FaceEmbedding:
         np.save(output_path, embeddings_array)
 
         return embeddings_array
+
+    def load_embeddings_binary(self, embeddings_dir: str) -> NDArray[np.float32]:
+        embeddings_path = os.path.join(embeddings_dir, "embeddings.npy")
+        embeddings_array: NDArray[np.float32] = np.load(embeddings_path, allow_pickle=False)
+
+        return embeddings_array
+
+    def match_face_with_embedding(self, frame: bytes, embeddings: NDArray[np.float32]) -> dict[str, float|list[float]]:
+        image = Image.open(io.BytesIO(frame))
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+
+        image = image.resize((320, 320), Image.LANCZOS)
+        image_tensor = cast(Tensor, self.transform(image)).unsqueeze(0).to(self.device)
+
+        # Skip empty images
+        if image.width == 0 or image.height == 0:
+            return {
+                "embedding": [],
+                "confidence": 0.0
+            }
+
+        with torch.no_grad():
+            # TODO: implement
