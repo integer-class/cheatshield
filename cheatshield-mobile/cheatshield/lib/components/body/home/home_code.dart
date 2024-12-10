@@ -1,49 +1,104 @@
+import 'package:cheatshield/providers/web/quiz_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cheatshield/providers/web/auth_provider.dart';
+import 'package:go_router/go_router.dart';
 
-class HomeCode extends StatelessWidget {
+class HomeCode extends ConsumerStatefulWidget {
   const HomeCode({super.key});
 
   @override
+  ConsumerState<HomeCode> createState() => _HomeCodeState();
+}
+
+class _HomeCodeState extends ConsumerState<HomeCode> {
+  final TextEditingController _codeController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _codeController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _joinQuiz(BuildContext context) async {
+    final quizNotifier = ref.read(quizProvider.notifier);
+    final token = ref.watch(authProvider); // Replace with actual token
+    final code = _codeController.text.trim();
+
+    // Input validation
+    if (code.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a quiz code')),
+      );
+      return;
+    }
+
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Authentication token is missing')),
+      );
+      return;
+    }
+
+    // Set loading state
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await quizNotifier.joinQuiz(code, token);
+
+      // Reset loading state
+      setState(() {
+        _isLoading = false;
+      });
+
+      // Check if response is not null and contains a successful status
+      if (response != null && response['message'] == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Joined quiz successfully')),
+        );
+        context.go('/quiz');
+      } else {
+        // Handle error response
+        final errorMessage = response?['message'] ?? 'Failed to join quiz';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    } catch (e) {
+      // Reset loading state in case of an unexpected error
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('An unexpected error occurred: ${e.toString()}')),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Enter Code',
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                elevation: 0,
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              child: Text(
-                'Join',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w800, color: Colors.white),
-              ),
-            ),
-          ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextField(
+          controller: _codeController,
+          decoration: const InputDecoration(
+            labelText: 'Quiz Code',
+          ),
         ),
-      ),
+        const SizedBox(height: 16.0),
+        _isLoading
+            ? const CircularProgressIndicator()
+            : ElevatedButton(
+                onPressed: () => _joinQuiz(context),
+                child: const Text('Join Quiz'),
+              ),
+      ],
     );
   }
 }

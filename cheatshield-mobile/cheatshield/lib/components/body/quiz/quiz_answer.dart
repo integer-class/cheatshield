@@ -1,20 +1,16 @@
+import 'package:cheatshield/providers/web/quiz_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class QuizAnswer extends StatefulWidget {
+class QuizAnswer extends ConsumerStatefulWidget {
   const QuizAnswer({Key? key}) : super(key: key);
 
   @override
   _QuizAnswerState createState() => _QuizAnswerState();
 }
 
-class _QuizAnswerState extends State<QuizAnswer> {
-  final List<String> answers = [
-    'Batman',
-    'Ryan Gosling',
-    'Spiderman',
-    'Superman'
-  ];
-  String? selectedAnswer; // Jawaban yang dipilih
+class _QuizAnswerState extends ConsumerState<QuizAnswer> {
+  String? selectedAnswer;
 
   void _selectAnswer(String answer) {
     setState(() {
@@ -22,18 +18,21 @@ class _QuizAnswerState extends State<QuizAnswer> {
     });
   }
 
-  void _nextQuestion() {
-    // Logika untuk pertanyaan selanjutnya
+  void _submitAnswer() async {
+    final quizNotifier = ref.read(quizProvider.notifier);
+    // await quizNotifier.submitAnswer(selectedAnswer ?? '');
+    // Reset selection after submission
     setState(() {
-      selectedAnswer = null; // Reset jawaban
+      selectedAnswer = null;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Next question logic goes here!')),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final quizState = ref.watch(quizProvider);
+
+    final answers = quizState?['answers'] as List<String>? ?? [];
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -45,10 +44,10 @@ class _QuizAnswerState extends State<QuizAnswer> {
                 _selectAnswer(answer);
               },
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 50),
                 backgroundColor:
                     selectedAnswer == answer ? Colors.blue : Colors.white,
-                side: BorderSide(color: Colors.black),
+                side: const BorderSide(color: Colors.black),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0),
                 ),
@@ -63,22 +62,21 @@ class _QuizAnswerState extends State<QuizAnswer> {
             ),
           );
         }).toList(),
-        if (selectedAnswer !=
-            null) // Tampilkan tombol Next hanya jika ada jawaban yang dipilih
+        if (selectedAnswer != null)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: ElevatedButton(
-              onPressed: _nextQuestion,
+              onPressed: _submitAnswer,
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
-                backgroundColor: Colors.green, // Warna hijau untuk tombol Next
-                side: BorderSide(color: Colors.black),
+                minimumSize: const Size(double.infinity, 50),
+                backgroundColor: Colors.green,
+                side: const BorderSide(color: Colors.black),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0),
                 ),
               ),
-              child: Text(
-                'Next',
+              child: const Text(
+                'Submit',
                 style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),

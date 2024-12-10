@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
-import '../components/header/navbar.dart';
-import '../components/footer/bottom_navbar.dart';
-import '../components/body/home/home_component.dart';
-import 'package:go_router/go_router.dart';
+import 'package:cheatshield/components/header/navbar.dart';
+import 'package:cheatshield/components/body/home/home_component.dart';
+import 'package:cheatshield/components/footer/bottom_navbar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   int _activeIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const Column(
+      body: Column(
         children: [
-          Navbar(),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
+          const Navbar(),
+          const Expanded(
+            child: SingleChildScrollView(
               child: HomeComponent(),
             ),
           ),
@@ -34,14 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             _activeIndex = value;
           });
-
-          if (value == 0) {
-            context.go('/home');
-          } else if (value == 1) {
-            // context.go('/history');
-          } else if (value == 2) {
-            context.go('/profile');
-          }
         },
       ),
     );
