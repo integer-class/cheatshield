@@ -1,11 +1,12 @@
+import 'package:cheatshield/models/quiz_model.dart';
 import 'package:dio/dio.dart';
 
 class QuizService {
   final Dio _dio = Dio();
 
-  final String baseUrl = 'http://192.168.1.9:80/api/v1';
+  final String baseUrl = 'http://192.168.1.4:80/api/v1';
 
-  Future<Map<String, dynamic>?> joinQuiz(String code, String token) async {
+  Future<QuizResponse?> joinQuiz(String code, String token) async {
     try {
       final response = await _dio.post(
         '$baseUrl/quiz/join/$code',
@@ -19,16 +20,18 @@ class QuizService {
         ),
       );
 
-      return response.statusCode == 200
-          ? response.data
-          : {'message': response.data?['message'] ?? 'Error joining quiz'};
+      if (response.statusCode == 200 && response.data != null) {
+        return QuizResponse.fromJson(response.data);
+      } else {
+        return null;
+      }
     } catch (e) {
-      return {'message': 'Failed to connect to server: ${e.toString()}'};
+      return null;
     }
   }
 
-  Future<Map<String, dynamic>?> submitAnswerForQuestion(
-      int quizSessionId, int questionId, int answerId, String token) async {
+  Future<Map<String, dynamic>?> submitAnswerForQuestion(String quizSessionId,
+      String questionId, String answerId, String token) async {
     try {
       final response = await _dio.post(
         '$baseUrl/quiz/answer',
@@ -55,7 +58,7 @@ class QuizService {
   }
 
   Future<Map<String, dynamic>?> finishQuizSession(
-      int quizSessionId, String token) async {
+      String quizSessionId, String token) async {
     try {
       final response = await _dio.post(
         '$baseUrl/quiz/finish',
