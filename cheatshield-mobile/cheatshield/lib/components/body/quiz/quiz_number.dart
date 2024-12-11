@@ -11,13 +11,13 @@ class QuizNumber extends ConsumerWidget {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
         child: Text(
           quizState != null
-              ? 'Question ${quizState.quizSession.quiz.id} of ${quizState.quizSession.quiz.questions.length}'
+              ? 'Questions ${quizState.currentQuestionIndex + 1} of ${quizState.quizSession.quiz.questions.length}'
               : 'Loading...',
           style: const TextStyle(
-            fontSize: 20,
+            fontSize: 12,
             fontWeight: FontWeight.bold,
           ),
         ),

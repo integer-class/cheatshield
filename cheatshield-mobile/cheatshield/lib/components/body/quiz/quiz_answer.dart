@@ -24,15 +24,6 @@ class _QuizAnswerState extends ConsumerState<QuizAnswer> {
     final quizState = ref.read(quizProvider);
     if (quizState == null) return;
 
-    // final currentQuestion = quizState.quizSession.quiz.questions[quizState.currentQuestionIndex];
-
-    // TODO: Implement answer submission logic
-    // await quizNotifier.submitAnswer(
-    //   quizId: quizState.id,
-    //   questionId: currentQuestion.id,
-    //   answerId: selectedAnswerId!
-    // );
-
     setState(() {
       selectedAnswerId = null;
     });
@@ -46,7 +37,6 @@ class _QuizAnswerState extends ConsumerState<QuizAnswer> {
       return const Center(child: Text('No answers available'));
     }
 
-    // final currentQuestion = quizState.questions[quizState.currentQuestionIndex];
     final answers = quizState.quizSession.quiz.questions[0].answers;
 
     return Column(
@@ -61,6 +51,9 @@ class _QuizAnswerState extends ConsumerState<QuizAnswer> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
+                        color: selectedAnswerId == answer.id
+                            ? Colors.blue // Warna jika dipilih
+                            : Colors.white, // Warna default
                         border: Border.all(
                           color: selectedAnswerId == answer.id
                               ? Colors.blue
@@ -73,9 +66,9 @@ class _QuizAnswerState extends ConsumerState<QuizAnswer> {
                         answer.content,
                         style: TextStyle(
                           color: selectedAnswerId == answer.id
-                              ? Colors.blue
+                              ? Colors.white
                               : Colors.black,
-                          fontSize: 16,
+                          fontSize: 20,
                         ),
                       ),
                     ),
@@ -85,7 +78,21 @@ class _QuizAnswerState extends ConsumerState<QuizAnswer> {
         const SizedBox(height: 20),
         ElevatedButton(
           onPressed: selectedAnswerId != null ? _submitAnswer : null,
-          child: const Text('Submit Answer'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            minimumSize: const Size(double.infinity, 50),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          child: Text(
+            'Next',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+          ),
         ),
       ],
     );

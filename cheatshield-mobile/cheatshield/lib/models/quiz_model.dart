@@ -12,10 +12,12 @@ String quizResponseToJson(QuizResponse data) => json.encode(data.toJson());
 class QuizResponse {
   String message;
   QuizSession quizSession;
+  int currentQuestionIndex;
 
   QuizResponse({
     required this.message,
     required this.quizSession,
+    this.currentQuestionIndex = 0,
   });
 
   factory QuizResponse.fromJson(Map<String, dynamic> json) => QuizResponse(
