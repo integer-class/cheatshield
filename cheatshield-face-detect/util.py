@@ -28,3 +28,20 @@ def prepare_workspace_dir_for_user(user_id: str) -> dict[str, str]:
         "processed_frames_dir": processed_frames_dir,
         "embeddings_dir": embeddings_dir
     }
+
+def clean_up_workspace_dir_for_user(dirs: dict[str, str]) -> None:
+    for dir_path in dirs.values():
+        if dir_path == dirs["workspace_dir"]:
+            continue
+        if dir_path == dirs["embeddings_dir"]:
+            continue
+        if not os.path.exists(dir_path):
+            continue
+
+        for file_name in os.listdir(dir_path):
+            file_path = os.path.join(dir_path, file_name)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+            except Exception as e:
+                print(f"Error deleting file {file_path}: {e}")
