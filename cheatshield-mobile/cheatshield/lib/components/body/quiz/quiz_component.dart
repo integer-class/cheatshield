@@ -19,7 +19,7 @@ class QuizComponent extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (quizState != null)
-              Text('Joined Quiz: ${quizState['quiz'] ?? 'Unknown'}'),
+              Text('Joined Quiz: ${quizState.quizSession.quiz.title}'),
             const SizedBox(height: 20),
             const QuizNumber(),
             const SizedBox(height: 20),

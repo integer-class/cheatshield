@@ -14,7 +14,7 @@ class QuizNumber extends ConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         child: Text(
           quizState != null
-              ? 'Question ${quizState['currentQuestion']} of ${quizState['totalQuestions']}'
+              ? 'Question ${quizState.quizSession.quiz.id} of ${quizState.quizSession.quiz.questions.length}'
               : 'Loading...',
           style: const TextStyle(
             fontSize: 20,

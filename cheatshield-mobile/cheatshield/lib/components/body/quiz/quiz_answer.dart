@@ -6,24 +6,35 @@ class QuizAnswer extends ConsumerStatefulWidget {
   const QuizAnswer({Key? key}) : super(key: key);
 
   @override
-  _QuizAnswerState createState() => _QuizAnswerState();
+  ConsumerState<QuizAnswer> createState() => _QuizAnswerState();
 }
 
 class _QuizAnswerState extends ConsumerState<QuizAnswer> {
-  String? selectedAnswer;
+  String? selectedAnswerId;
 
-  void _selectAnswer(String answer) {
+  void _selectAnswer(String answerId) {
     setState(() {
-      selectedAnswer = answer;
+      selectedAnswerId = answerId;
     });
   }
 
   void _submitAnswer() async {
-    final quizNotifier = ref.read(quizProvider.notifier);
-    // await quizNotifier.submitAnswer(selectedAnswer ?? '');
-    // Reset selection after submission
+    if (selectedAnswerId == null) return;
+
+    final quizState = ref.read(quizProvider);
+    if (quizState == null) return;
+
+    // final currentQuestion = quizState.quizSession.quiz.questions[quizState.currentQuestionIndex];
+
+    // TODO: Implement answer submission logic
+    // await quizNotifier.submitAnswer(
+    //   quizId: quizState.id,
+    //   questionId: currentQuestion.id,
+    //   answerId: selectedAnswerId!
+    // );
+
     setState(() {
-      selectedAnswer = null;
+      selectedAnswerId = null;
     });
   }
 
@@ -31,56 +42,51 @@ class _QuizAnswerState extends ConsumerState<QuizAnswer> {
   Widget build(BuildContext context) {
     final quizState = ref.watch(quizProvider);
 
-    final answers = quizState?['answers'] as List<String>? ?? [];
+    if (quizState == null || quizState.quizSession.quiz.questions.isEmpty) {
+      return const Center(child: Text('No answers available'));
+    }
+
+    // final currentQuestion = quizState.questions[quizState.currentQuestionIndex];
+    final answers = quizState.quizSession.quiz.questions[0].answers;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ...answers.map((answer) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: ElevatedButton(
-              onPressed: () {
-                _selectAnswer(answer);
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                backgroundColor:
-                    selectedAnswer == answer ? Colors.blue : Colors.white,
-                side: const BorderSide(color: Colors.black),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-              ),
-              child: Text(
-                answer,
-                style: TextStyle(
-                  color: selectedAnswer == answer ? Colors.white : Colors.black,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-        if (selectedAnswer != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: ElevatedButton(
-              onPressed: _submitAnswer,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                backgroundColor: Colors.green,
-                side: const BorderSide(color: Colors.black),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-              ),
-              child: const Text(
-                'Submit',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
-          ),
+        ...answers
+            .map((answer) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: InkWell(
+                    onTap: () => _selectAnswer(answer.id),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: selectedAnswerId == answer.id
+                              ? Colors.blue
+                              : Colors.grey,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Text(
+                        answer.content,
+                        style: TextStyle(
+                          color: selectedAnswerId == answer.id
+                              ? Colors.blue
+                              : Colors.black,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ))
+            .toList(),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: selectedAnswerId != null ? _submitAnswer : null,
+          child: const Text('Submit Answer'),
+        ),
       ],
     );
   }

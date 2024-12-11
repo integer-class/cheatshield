@@ -47,24 +47,25 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
     });
 
     try {
-      final response = await quizNotifier.joinQuiz(code, token);
+      await quizNotifier.joinQuiz(code, token);
 
       // Reset loading state
       setState(() {
         _isLoading = false;
       });
 
-      // Check if response is not null and contains a successful status
-      if (response != null && response['message'] == null) {
+      // Check if quiz state has been updated successfully
+      final quiz = ref.read(quizProvider);
+
+      if (quiz != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Joined quiz successfully')),
         );
         context.go('/quiz');
       } else {
-        // Handle error response
-        final errorMessage = response?['message'] ?? 'Failed to join quiz';
+        // Handle case where quiz is null
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
+          const SnackBar(content: Text('Failed to join quiz')),
         );
       }
     } catch (e) {
