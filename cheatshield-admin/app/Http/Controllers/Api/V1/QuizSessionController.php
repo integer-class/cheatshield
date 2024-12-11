@@ -52,7 +52,7 @@ class QuizSessionController extends Controller
 
         return response()->json([
             'message' => 'Joined successfully',
-            'quiz' => $session,
+            'quiz_session' => $session,
         ]);
     }
 
