@@ -26,7 +26,7 @@ async def extract_frames(video_path: str, output_directory: str):
 
         # skip every other frame because we don't need every single one of them
         # which should make it faster
-        if extract_count % 2 != 0:
+        if extract_count % 5 != 0:
             continue
 
         frame_count += 1

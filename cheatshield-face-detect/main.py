@@ -33,7 +33,7 @@ class GenerateEmbeddingRequest(BaseModel):
     user_id: Annotated[str, Form()]
 
 @app.post("/api/v1/face-recognition/embedding")
-async def generate_embedding(user_id: Annotated[str,Form()], video: Annotated[UploadFile, File(...)]) -> dict[str, Any]:
+async def generate_embedding(user_id: Annotated[str,Form()], video: Annotated[UploadFile, File(...)], direction: Annotated[str, Form()]) -> dict[str, Any]:
     """
     Generates embeddings for the faces in the uploaded video
     """
@@ -65,7 +65,7 @@ async def generate_embedding(user_id: Annotated[str,Form()], video: Annotated[Up
             embeddings = face_embedding.generate_embeddings(dirs["faces_dir"])
 
         with timer.timer("Save embeddings"):
-            binary_output_path = os.path.join(dirs["embeddings_dir"], "embeddings.npy")
+            binary_output_path = os.path.join(dirs["embeddings_dir"], f"embedding-{direction}.npy")
             face_embedding.save_embeddings_binary(embeddings, binary_output_path)
 
         return {
