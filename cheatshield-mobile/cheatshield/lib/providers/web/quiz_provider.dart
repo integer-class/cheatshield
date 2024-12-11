@@ -10,21 +10,34 @@ class QuizNotifier extends StateNotifier<QuizResponse?> {
   QuizNotifier() : super(null);
 
   final QuizService _quizService = QuizService();
+  int _currentQuestionIndex = 0;
+
+  int get currentQuestionIndex => _currentQuestionIndex;
 
   Future<void> joinQuiz(String code, String token) async {
     final quizResponse = await _quizService.joinQuiz(code, token);
     if (quizResponse != null) {
+      _currentQuestionIndex = 0;
       state = quizResponse;
-      print('Message: ${quizResponse.message}');
-      print('Quiz Title: ${quizResponse.quizSession.title}');
-      for (var question in quizResponse.quizSession.quiz.questions) {
-        print('Question: ${question.content}');
-        for (var answer in question.answers) {
-          print('Answer: ${answer.content}, Correct: ${answer.isCorrect}');
-        }
-      }
     } else {
       print('Failed to join the quiz.');
     }
+  }
+
+  void nextQuestion() {
+    if (state != null &&
+        _currentQuestionIndex < state!.quizSession.quiz.questions.length - 1) {
+      _currentQuestionIndex++;
+      // Force state update by creating new instance
+      state = QuizResponse(
+        message: state!.message,
+        quizSession: state!.quizSession,
+      );
+    }
+  }
+
+  bool isLastQuestion() {
+    return state != null &&
+        _currentQuestionIndex >= state!.quizSession.quiz.questions.length - 1;
   }
 }
