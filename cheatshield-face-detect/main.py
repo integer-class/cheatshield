@@ -33,9 +33,9 @@ class GenerateEmbeddingRequest(BaseModel):
     user_id: Annotated[str, Form()]
 
 @app.post("/api/v1/face-recognition/embedding")
-async def generate_embedding(user_id: Annotated[str,Form()], video: Annotated[UploadFile, File(...)], direction: Annotated[str, Form()]) -> dict[str, Any]:
+async def generate_embedding(user_id: Annotated[str, Form()], video_directions: Annotated[dict[str, UploadFile], Form(...)]) -> dict[str, Any]:
     """
-    Generates embeddings for the faces in the uploaded video
+    Generates embeddings for the faces in the uploaded videos
     """
 
     timer = PerformanceTimer()
@@ -43,38 +43,46 @@ async def generate_embedding(user_id: Annotated[str,Form()], video: Annotated[Up
     dirs = prepare_workspace_dir_for_user(user_id)
 
     try:
-        with timer.timer("Clean up files for user"):
-            clean_up_workspace_dir_for_user(dirs)
+        results = []
+        for direction, video in video_directions.items():
+            with timer.timer("Clean up files for user"):
+                clean_up_workspace_dir_for_user(dirs)
 
-        with timer.timer("Save uploaded file into a buffer"):
-            with open(dirs["input_video_path"], "wb") as buffer:
-                shutil.copyfileobj(video.file, buffer)
+            with timer.timer("Save uploaded file into a buffer"):
+                input_video_path = os.path.join(dirs["input_video_dir"], f"video-{direction}.mp4")
+                with open(input_video_path, "wb") as buffer:
+                    shutil.copyfileobj(video.file, buffer)
 
-        with timer.timer("Extract frames"):
-            frame_paths = await extract_frames(dirs["input_video_path"], dirs["frames_dir"])
+            with timer.timer("Extract frames"):
+                frame_paths = await extract_frames(input_video_path, dirs["frames_dir"])
 
-        with timer.timer("Detect faces"):
-            results = await detect_faces_in_frames(
-                frames_dir=dirs["frames_dir"],
-                faces_dir=dirs["faces_dir"],
-                processed_dir=dirs["processed_frames_dir"]
-            )
+            with timer.timer("Detect faces"):
+                detect_results = await detect_faces_in_frames(
+                    frames_dir=dirs["frames_dir"],
+                    faces_dir=dirs["faces_dir"],
+                    processed_dir=dirs["processed_frames_dir"]
+                )
 
-        with timer.timer("Generate embeddings"):
-            face_embedding = FaceEmbedding()
-            embeddings = face_embedding.generate_embeddings(dirs["faces_dir"])
+            with timer.timer("Generate embeddings"):
+                face_embedding = FaceEmbedding()
+                embeddings = face_embedding.generate_embeddings(dirs["faces_dir"])
 
-        with timer.timer("Save embeddings"):
-            binary_output_path = os.path.join(dirs["embeddings_dir"], f"embedding-{direction}.npy")
-            face_embedding.save_embeddings_binary(embeddings, binary_output_path)
+            with timer.timer("Save embeddings"):
+                binary_output_path = os.path.join(dirs["embeddings_dir"], f"embedding-{direction}.npy")
+                face_embedding.save_embeddings_binary(embeddings, binary_output_path)
+
+            results.append({
+                "direction": direction,
+                "frames_extracted": len(frame_paths),
+                "faces_detected": detect_results["total_faces"],
+                "frames_processed": detect_results["processed_frames"],
+                "embeddings_generated": len(embeddings),
+            })
 
         return {
             "status": "success",
-            "message": "Video processed successfully",
-            "frames_extracted": len(frame_paths),
-            "faces_detected": results["total_faces"],
-            "frames_processed": results["processed_frames"],
-            "embeddings_generated": len(embeddings),
+            "message": "Videos processed successfully",
+            "results": results,
             "facenet_status": timer.get_stats()
         }
     except Exception as e:
