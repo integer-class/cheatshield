@@ -53,6 +53,7 @@ class QuizSessionController extends Controller
         return response()->json([
             'message' => 'Joined successfully',
             'quiz_session' => $session,
+            'user_in_quiz_session' => $userSession,
         ]);
     }
 
