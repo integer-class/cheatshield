@@ -147,4 +147,15 @@ class FaceEmbedding:
             }
 
         with torch.no_grad():
-            # TODO: implement
+            # Generate embedding for the given frame
+            frame_embedding = self.model(image_tensor).cpu().numpy()
+
+            # Compare the frame embedding with all embeddings in the database
+            similarities = np.dot(embeddings['embedding'], frame_embedding.T)
+            best_match_index = np.argmax(similarities)
+            best_match_confidence = similarities[best_match_index]
+
+            return {
+                "embedding": embeddings[best_match_index]['embedding'].tolist(),
+                "confidence": float(best_match_confidence)
+            }
