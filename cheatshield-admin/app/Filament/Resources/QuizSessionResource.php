@@ -10,10 +10,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class QuizSessionResource extends Resource
@@ -79,21 +77,21 @@ class QuizSessionResource extends Resource
                     ->default(fn (Model $record) => $record->started_at->diffInMinutes($record->completed_at))
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('started_at')
-                    ->dateTime(timezone: "Asia/Jakarta")
+                    ->dateTime(timezone: 'Asia/Jakarta')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('completed_at')
-                    ->dateTime(timezone: "Asia/Jakarta")
+                    ->dateTime(timezone: 'Asia/Jakarta')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime(timezone: "Asia/Jakarta")
+                    ->dateTime(timezone: 'Asia/Jakarta')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime(timezone: "Asia/Jakarta")
+                    ->dateTime(timezone: 'Asia/Jakarta')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime(timezone: "Asia/Jakarta")
+                    ->dateTime(timezone: 'Asia/Jakarta')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -111,7 +109,8 @@ class QuizSessionResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->recordUrl(fn (Model $record): string => QuizSessionResource::getUrl('show', ['record' => $record]));
     }
 
     public static function getRelations(): array
@@ -127,6 +126,7 @@ class QuizSessionResource extends Resource
             'index' => Pages\ListQuizSessions::route('/'),
             'create' => Pages\CreateQuizSession::route('/create'),
             'edit' => Pages\EditQuizSession::route('/{record}/edit'),
+            'show' => Pages\ShowQuizSession::route('/{record}'),
         ];
     }
 }

@@ -22,9 +22,6 @@ class QuizSessionController extends Controller
         $user = $request->user();
         $session = QuizSession::query()
             ->where('code', $code)
-            ->with([
-                'quiz.questions.answers',
-            ])
             ->first();
         if (! $session) {
             return response()->json([
@@ -53,6 +50,7 @@ class QuizSessionController extends Controller
         return response()->json([
             'message' => 'Joined successfully',
             'quiz_session' => $session,
+            'user_session' => $userSession,
         ]);
     }
 
