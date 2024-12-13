@@ -13,16 +13,20 @@ class QuizResponse {
   String message;
   QuizSession quizSession;
   int currentQuestionIndex;
+  UserInQuizSession userInQuizSession;
 
   QuizResponse({
     required this.message,
     required this.quizSession,
     this.currentQuestionIndex = 0,
+    required this.userInQuizSession,
   });
 
   factory QuizResponse.fromJson(Map<String, dynamic> json) => QuizResponse(
         message: json["message"],
         quizSession: QuizSession.fromJson(json["quiz_session"]),
+        userInQuizSession:
+            UserInQuizSession.fromJson(json["user_in_quiz_session"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -215,4 +219,29 @@ class Answer {
         "updated_at": updatedAt.toIso8601String(),
         "deleted_at": deletedAt,
       };
+}
+
+class UserInQuizSession {
+  String userId;
+  String quizSessionId;
+  String id;
+  DateTime updatedAt;
+  DateTime createdAt;
+
+  UserInQuizSession({
+    required this.userId,
+    required this.quizSessionId,
+    required this.id,
+    required this.updatedAt,
+    required this.createdAt,
+  });
+
+  factory UserInQuizSession.fromJson(Map<String, dynamic> json) =>
+      UserInQuizSession(
+        userId: json["user_id"],
+        quizSessionId: json["quiz_session_id"],
+        id: json["id"],
+        updatedAt: DateTime.parse(json["updated_at"]),
+        createdAt: DateTime.parse(json["created_at"]),
+      );
 }
