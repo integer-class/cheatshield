@@ -26,12 +26,12 @@ class _QuizAnswerState extends ConsumerState<QuizAnswer> {
 
     if (quizState == null) return;
 
-    // Simpan jawaban ke server (opsional, implementasikan di sini jika diperlukan)
-    // ...
+    final response = await quizNotifier.submitAnswer(selectedAnswerId!);
 
-    if (quizNotifier.isLastQuestion()) {
+    if (response != null && quizNotifier.isLastQuestion()) {
       // Logika submit kuis
       print("Quiz submitted!");
+      await quizNotifier.finishQuizSession();
       // Tambahkan navigasi ke layar akhir atau hasil kuis
     } else {
       quizNotifier.nextQuestion(); // Pindah ke pertanyaan berikutnya

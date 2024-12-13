@@ -1,14 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cheatshield/services/web/quiz_service.dart';
 import 'package:cheatshield/models/quiz_model.dart';
+import 'package:cheatshield/providers/web/auth_provider.dart';
 
 final quizProvider = StateNotifierProvider<QuizNotifier, QuizResponse?>((ref) {
-  return QuizNotifier();
+  return QuizNotifier(ref);
 });
 
 class QuizNotifier extends StateNotifier<QuizResponse?> {
-  QuizNotifier() : super(null);
+  QuizNotifier(this.ref) : super(null);
 
+  final Ref ref;
   final QuizService _quizService = QuizService();
   int _currentQuestionIndex = 0;
 
@@ -32,6 +34,7 @@ class QuizNotifier extends StateNotifier<QuizResponse?> {
       state = QuizResponse(
         message: state!.message,
         quizSession: state!.quizSession,
+        userInQuizSession: state!.userInQuizSession,
       );
     }
   }
@@ -39,5 +42,54 @@ class QuizNotifier extends StateNotifier<QuizResponse?> {
   bool isLastQuestion() {
     return state != null &&
         _currentQuestionIndex >= state!.quizSession.quiz.questions.length - 1;
+  }
+
+  Future<Map<String, dynamic>?> submitAnswer(String answerId) async {
+    if (state == null) return null;
+
+    final quizSessionId = state!.quizSession.id;
+    final questionId =
+        state!.quizSession.quiz.questions[_currentQuestionIndex].id;
+    final token = ref.read(authProvider);
+
+    if (token == null) {
+      print('Token is null. Cannot submit answer.');
+      return null;
+    }
+
+    final response = await _quizService.submitAnswerForQuestion(
+      quizSessionId,
+      questionId,
+      answerId,
+      token,
+    );
+
+    if (response != null) {
+      return response;
+    } else {
+      print('Failed to submit answer.');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> finishQuizSession() async {
+    if (state == null) return null;
+
+    final quizSessionId = state!.quizSession.id;
+    final token = ref.read(authProvider);
+
+    if (token == null) {
+      print('Token is null. Cannot finish quiz session.');
+      return null;
+    }
+
+    final response = await _quizService.finishQuizSession(quizSessionId, token);
+
+    if (response != null) {
+      return response;
+    } else {
+      print('Failed to finish quiz session.');
+      return null;
+    }
   }
 }
