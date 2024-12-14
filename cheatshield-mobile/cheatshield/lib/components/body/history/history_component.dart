@@ -117,53 +117,56 @@ class _HistoryComponentState extends ConsumerState<HistoryComponent> {
       itemCount: _histories.length,
       itemBuilder: (context, index) {
         final history = _histories[index];
-        final quiz = history.quizSessionResults[0];
 
-        return Card(
-          margin: const EdgeInsets.only(bottom: 16.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          elevation: 4,
-          color: const Color(0xFF343300),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(16.0),
-            leading: const Icon(
-              Icons.check_circle_outline,
-              size: 40,
-              color: Color(0xFFD2D3C7),
-            ),
-            title: Text(
-              quiz.quizTitle,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFD2D3C7),
+        return Column(
+          children: history.quizSessionResults.map((quiz) {
+            return Card(
+              margin: const EdgeInsets.only(bottom: 16.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                Text(
-                  'Score: ${quiz.totalScore}',
+              elevation: 4,
+              color: const Color(0xFF343300),
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(16.0),
+                leading: const Icon(
+                  Icons.check_circle_outline,
+                  size: 40,
+                  color: Color(0xFFD2D3C7),
+                ),
+                title: Text(
+                  quiz.quizTitle,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                     color: Color(0xFFD2D3C7),
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  'Correct: ${quiz.correctAnswers}/${quiz.correctAnswers + quiz.incorrectAnswers}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFFD2D3C7),
-                  ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
+                    Text(
+                      'Score: ${quiz.totalScore}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFFD2D3C7),
+                      ),
+                    ),
+                    Text(
+                      'Correct: ${quiz.correctAnswers}/${quiz.correctAnswers + quiz.incorrectAnswers}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFFD2D3C7),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          }).toList(),
         );
       },
     );
