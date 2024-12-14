@@ -29,6 +29,8 @@ RUN bun run build
 # Second Stage: Runtime
 FROM ghcr.io/global-scholarship-services-indonesia/docker-base/laravel:main
 
+RUN docker-php-ext-install intl
+
 # inject private key to decrypt dotenvx
 ARG DOTENV_PRIVATE_KEY
 ENV DOTENV_PRIVATE_KEY=${DOTENV_PRIVATE_KEY}
