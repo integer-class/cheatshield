@@ -30,10 +30,10 @@ class UserAnswerInSession extends Model
      * @var array
      */
     protected $casts = [
-        'user_id' => 'uuid',
-        'quiz_session_id' => 'uuid',
-        'question_id' => 'uuid',
-        'answer_id' => 'uuid',
+        'user_id' => 'string',
+        'quiz_session_id' => 'string',
+        'question_id' => 'string',
+        'answer_id' => 'string',
     ];
 
     /**
