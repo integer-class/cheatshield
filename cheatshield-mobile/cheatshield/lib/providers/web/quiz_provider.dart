@@ -1,3 +1,4 @@
+import 'package:cheatshield/models/quiz_history_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cheatshield/services/web/quiz_service.dart';
 import 'package:cheatshield/models/quiz_model.dart';
@@ -89,6 +90,18 @@ class QuizNotifier extends StateNotifier<QuizResponse?> {
       return response;
     } else {
       print('Failed to finish quiz session.');
+      return null;
+    }
+  }
+
+  // history
+  Future<List<QuizHistory>?> getQuizHistory(String token) async {
+    final response = await _quizService.getQuizHistory(token);
+
+    if (response != null) {
+      return response;
+    } else {
+      print('Failed to get quiz history.');
       return null;
     }
   }

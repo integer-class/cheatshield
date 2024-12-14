@@ -1,10 +1,11 @@
 import 'package:cheatshield/models/quiz_model.dart';
 import 'package:dio/dio.dart';
+import 'package:cheatshield/models/quiz_history_model.dart';
 
 class QuizService {
   final Dio _dio = Dio();
 
-  final String baseUrl = 'http://192.168.1.4:80/api/v1';
+  final String baseUrl = 'http://192.168.1.4/api/v1';
 
   Future<QuizResponse?> joinQuiz(String code, String token) async {
     try {
@@ -16,7 +17,10 @@ class QuizService {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
           },
-          validateStatus: (status) => status! < 500,
+          followRedirects: false,
+          validateStatus: (status) {
+            return status! < 500; // Accept status codes less than 500
+          },
         ),
       );
 
@@ -77,6 +81,42 @@ class QuizService {
           : {'message': response.data?['message'] ?? 'Error finishing quiz'};
     } catch (e) {
       return {'message': 'Failed to connect to server: ${e.toString()}'};
+    }
+  }
+
+  // history
+  Future<List<QuizHistory>?> getQuizHistory(String token) async {
+    try {
+      final response = await _dio.get(
+        '$baseUrl/quiz/history',
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      print('Quiz History Raw Response Status Code: ${response.statusCode}');
+      print('Quiz History Raw Response Data: ${response.data}');
+
+      if (response.statusCode == 200 && response.data != null) {
+        // If the response is a map instead of a list, wrap it in a list
+        if (response.data is Map) {
+          return [QuizHistory.fromJson(response.data)];
+        }
+
+        return (response.data as List)
+            .map((e) => QuizHistory.fromJson(e))
+            .toList();
+      } else {
+        print('Quiz History Response Error: ${response.data}');
+        return null;
+      }
+    } catch (e) {
+      print('Quiz History Exception: $e');
+      return null;
     }
   }
 }
