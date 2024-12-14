@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserInQuizSession;
 use App\Services\FaceRecognitionService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\File;
@@ -49,6 +51,58 @@ class FaceRecognitionController extends Controller
         return response()->json([
             'message' => 'Embedding updated successfully',
             'data' => $user->embedding,
+        ]);
+    }
+
+    public function pingFaceRecognition(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_id' => 'required|uuid',
+            'user_in_quiz_session_id' => 'required|uuid',
+            'photo' => [
+                'required',
+                File::types(['jpg', 'jpeg', 'png'])
+                    ->max(1024 * 1024 * 5), // 5 MB
+            ],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+        $files = $request->file('photo');
+        if ($files === null || count($files) === 0) {
+            return response()->json([
+                'message' => 'No file uploaded',
+                'data' => null,
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $photo = $files[0];
+
+        $userInQuizSession = UserInQuizSession::query()
+            ->where([
+                ['user_id', $user->id],
+                ['user_in_quiz_session_id', $request->user_in_quiz_session_id],
+            ])
+            ->firstOrFail();
+
+        $result = $this->faceRecognitionService->pingFaceRecognition($user, $userInQuizSession, $photo);
+
+        $userInQuizSession->status = [
+            'last_updated_at' => Carbon::now(),
+            'looking_left' => $result['looking_left'],
+            'looking_right' => $result['looking_right'],
+            'looking_up' => $result['looking_up'],
+            'looking_down' => $result['looking_down'],
+            'looking_straight' => $result['looking_straight'],
+        ];
+
+        // TODO: this _might_ be bad but we don't have concurrent session at the moment so it's probably fine
+        //       at least for now, otherwise we'll need to use event sourcing to prevent race conditions
+        $userInQuizSession->save();
+
+        return response()->json([
+            'message' => 'Ping successful',
+            'data' => $userInQuizSession->status,
         ]);
     }
 }

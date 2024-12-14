@@ -4,21 +4,23 @@ namespace App\Models;
 
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, HasUuids, SoftDeletes, HasApiTokens, HasRoles;
+    use HasApiTokens, HasFactory, HasRoles, HasUuids, SoftDeletes;
 
     protected $primaryKey = 'id';
+
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     /**
@@ -66,6 +68,14 @@ class User extends Authenticatable implements FilamentUser
     public function quiz(): HasMany
     {
         return $this->hasMany(Quiz::class);
+    }
+
+    /**
+     * @return HasMany<UserAnswerInSession,User>
+     */
+    public function quizSessionAnswers(): HasMany
+    {
+        return $this->hasMany(UserAnswerInSession::class);
     }
 
     public function canAccessPanel(Panel $panel): bool

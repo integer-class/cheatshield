@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Role;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -28,6 +29,11 @@ class UserSeeder extends Seeder
             'name' => 'Student',
             'email' => 'student@gmail.com',
             'password' => bcrypt('student'),
+        ]);
+        Student::create([
+            'user_id' => $student->id,
+            'nim' => '1234567890',
+            'gender' => 'male',
         ]);
         $student->assignRole('student');
     }

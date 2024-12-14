@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary()->unique();
             $table->foreignUuid('user_id')->references('id')->on('users');
             $table->foreignUuid('quiz_session_id')->references('id')->on('quiz_sessions');
-            $table->jsonb('cheating_status')->nullable();
+            $table->jsonb('status')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

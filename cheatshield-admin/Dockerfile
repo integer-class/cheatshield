@@ -1,55 +1,56 @@
-FROM php:8.3-fpm
+# First Stage: Build
+FROM ghcr.io/global-scholarship-services-indonesia/docker-base/laravel:main AS build
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    supervisor \
-    nginx \
-    postgresql-client \
-    libpq-dev
+ARG ENV
+ENV ENV=${ENV}
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
-
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Install Node.js and npm
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
-RUN apt-get install -y nodejs
+ARG DOTENV_PRIVATE_KEY
+ENV DOTENV_PRIVATE_KEY=${DOTENV_PRIVATE_KEY}
 
 # Set working directory
-WORKDIR /var/www/html
+WORKDIR /var/www
 
-# Copy project files
-COPY . .
+# Copy only dependency files first to leverage caching
+COPY composer.json composer.lock ./
+COPY package.json bun.lockb ./
 
 # Install dependencies
-RUN composer install --no-interaction --no-dev --optimize-autoloader
-RUN npm install
-RUN npm run build
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN --mount=type=cache,id=bun,target=/root/.bun/install/cache bun install --frozen-lockfile
+RUN curl -sfS https://dotenvx.sh/install.sh | sh
 
-# Copy configuration files
-COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
-COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Copy application files
+COPY . .
+COPY .env.${ENV} .env
 
-# Create necessary directories and set permissions
-RUN mkdir -p /var/log/supervisor
-RUN mkdir -p /var/log/nginx
-RUN mkdir -p /var/log/php
-RUN mkdir -p storage/logs
-RUN chmod -R 777 storage bootstrap/cache
+# build deps
+RUN bun run build
+
+# Second Stage: Runtime
+FROM ghcr.io/global-scholarship-services-indonesia/docker-base/laravel:main
+
+# inject private key to decrypt dotenvx
+ARG DOTENV_PRIVATE_KEY
+ENV DOTENV_PRIVATE_KEY=${DOTENV_PRIVATE_KEY}
+
+# Install dotenvx
+RUN curl -sfS https://dotenvx.sh/install.sh | sh
+
+# Set working directory
+WORKDIR /var/www
+
+# copy files
+COPY --from=build /var/www .
+
+RUN chown -R www-data:www-data /var/www/storage /var/www/public && \
+    chmod -R 755 /var/www/storage
+
+# Copy supervisor configuration
+COPY ./supervisord.conf /etc/supervisord.conf
+
+# Copy nginx configuration
+COPY ./nginx.conf /etc/nginx/sites-available/default
 
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["dotenvx", "run", "--", "./start.sh"]

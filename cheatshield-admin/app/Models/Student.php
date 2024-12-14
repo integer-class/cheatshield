@@ -28,13 +28,6 @@ class Student extends Model
     ];
 
     /**
-     * @var array
-     */
-    protected $casts = [
-        'user_id' => 'uuid',
-    ];
-
-    /**
      * @return BelongsTo<User,Student>
      */
     public function user(): BelongsTo

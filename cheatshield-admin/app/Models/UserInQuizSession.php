@@ -22,14 +22,14 @@ class UserInQuizSession extends Model
     protected $fillable = [
         'user_id',
         'quiz_session_id',
-        'cheating_status',
+        'status',
     ];
 
     /**
      * @var array
      */
     protected $casts = [
-        'cheating_status' => 'json',
+        'status' => 'json',
     ];
 
     /**

@@ -22,9 +22,6 @@ class QuizSessionController extends Controller
         $user = $request->user();
         $session = QuizSession::query()
             ->where('code', $code)
-            ->with([
-                'quiz.questions.answers',
-            ])
             ->first();
         if (! $session) {
             return response()->json([
@@ -62,10 +59,30 @@ class QuizSessionController extends Controller
         $user = $request->user();
         $results = QuizSessionResult::query()
             ->where('user_id', $user->id)
+            ->with('quizSession.quiz')
             ->get();
 
-        return response()->json($results);
+        // Menambahkan title ke response
+        $resultsWithTitles = $results->map(function ($result) {
+            return [
+                'id' => $result->id,
+                'user_id' => $result->user_id,
+                'quiz_session_id' => $result->quiz_session_id,
+                'total_score' => $result->total_score,
+                'correct_answers' => $result->correct_answers,
+                'incorrect_answers' => $result->incorrect_answers,
+                'quiz_title' => $result->quizSession->quiz->title,
+                'created_at' => $result->created_at,
+                'updated_at' => $result->updated_at,
+            ];
+        });
+
+        return response()->json([
+            'message' => 'Successfully retrieved quiz session results',
+            'quiz_session_results' => $resultsWithTitles,
+        ]);
     }
+
 
     public function submitAnswerForQuestion(Request $request): JsonResponse
     {
