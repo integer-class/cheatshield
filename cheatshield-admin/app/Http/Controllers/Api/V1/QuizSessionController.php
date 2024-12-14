@@ -21,6 +21,7 @@ class QuizSessionController extends Controller
     {
         $user = $request->user();
         $session = QuizSession::query()
+            ->with('quiz.questions.answers')
             ->where('code', $code)
             ->first();
         if (! $session) {
