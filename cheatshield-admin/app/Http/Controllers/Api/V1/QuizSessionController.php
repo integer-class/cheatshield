@@ -70,9 +70,9 @@ class QuizSessionController extends Controller
     public function submitAnswerForQuestion(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
-            'quiz_session_id' => 'required|integer|exists:quiz_sessions,id',
-            'question_id' => 'required|integer|exists:questions,id',
-            'answer_id' => 'required|integer|exists:answers,id',
+            'quiz_session_id' => 'required|exists:quiz_sessions,id',
+            'question_id' => 'required|exists:questions,id',
+            'answer_id' => 'required|exists:answers,id',
         ]);
         $user = Auth::user();
 
