@@ -36,6 +36,11 @@ ENV DOTENV_PRIVATE_KEY=${DOTENV_PRIVATE_KEY}
 # Install dotenvx
 RUN curl -sfS https://dotenvx.sh/install.sh | sh
 
+# Install postgres driver
+RUN apt-get install -y libpq-dev \
+    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
+    && docker-php-ext-install pdo pdo_pgsql pgs
+
 # Set working directory
 WORKDIR /var/www
 
