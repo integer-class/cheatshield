@@ -62,7 +62,7 @@ class ShowQuizSession extends ListRecords
                         //     "looking_right": 0.241,
                         //     "looking_up": 0.012,
                         //     "looking_down": 0.726,
-                        //     "no_face_detected": 0.312,
+                        //     "looking_straight": 0.312,
                         // }
                         $status = json_decode($record->status, true);
                         if (! is_array($status)) {
@@ -88,6 +88,9 @@ class ShowQuizSession extends ListRecords
             ]);
     }
 
+    /**
+     * @param  array<int,mixed>  $status
+     */
     private function formatFaceStatusIntoReadable(array $status): string
     {
         $highestProbability = '';
@@ -104,7 +107,7 @@ class ShowQuizSession extends ListRecords
         }
 
         if ($highestProbability === '') {
-            return 'Active';
+            return 'Cheating';
         }
 
         $statusText = Str::of($highestProbability)

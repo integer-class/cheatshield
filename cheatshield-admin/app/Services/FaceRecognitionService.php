@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\UserInQuizSession;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\File;
 
@@ -46,6 +47,30 @@ class FaceRecognitionService
 
         if (count($data['data']) === 0) {
             throw new \Exception('Failed to generate embeddings from video');
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param  array<int,mixed>  $photo
+     */
+    public function pingFaceRecognition(User $user, UserInQuizSession $userInQuizSession, array $photo): array
+    {
+        $response = $this->client->post('/api/v1/face-recognition/ping', [
+            'multipart' => [
+                ['name' => 'user_id', 'contents' => $user->id],
+                ['name' => 'session_id', 'contents' => $user->id],
+                ['name' => 'photo', 'contents' => $photo],
+            ],
+        ]);
+        if ($response->getStatusCode() !== 200) {
+            throw new \Exception('Failed to ping face recognition service');
+        }
+
+        $data = json_decode($response->getBody()->getContents(), true);
+        if ($data === null) {
+            throw new \Exception('Failed to decode response from face recognition service');
         }
 
         return $data;

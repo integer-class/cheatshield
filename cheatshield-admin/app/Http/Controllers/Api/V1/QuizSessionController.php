@@ -50,7 +50,7 @@ class QuizSessionController extends Controller
         return response()->json([
             'message' => 'Joined successfully',
             'quiz_session' => $session,
-            'user_session' => $userSession,
+            'user_in_quiz_session' => $userSession,
         ]);
     }
 
@@ -67,9 +67,9 @@ class QuizSessionController extends Controller
     public function submitAnswerForQuestion(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
-            'quiz_session_id' => 'required|integer|exists:quiz_sessions,id',
-            'question_id' => 'required|integer|exists:questions,id',
-            'answer_id' => 'required|integer|exists:answers,id',
+            'quiz_session_id' => 'required|uuid|exists:quiz_sessions,id',
+            'question_id' => 'required|uuid|exists:questions,id',
+            'answer_id' => 'required|uuid|exists:answers,id',
         ]);
         $user = Auth::user();
 
@@ -109,9 +109,12 @@ class QuizSessionController extends Controller
 
     public function finishQuizSession(Request $request, QuizSession $userQuizSession): JsonResponse
     {
-        $validatedData = $request->validate($request, [
-            'quiz_session_id' => 'required|exists:quiz_sessions,id',
-        ]);
+        $rules = [
+            'quiz_session_id' => 'required|uuid|exists:quiz_sessions,id',
+        ];
+
+        $validatedData = $request->validate($rules);
+
         $user = Auth::user();
 
         $userQuizSession = UserInQuizSession::query()
@@ -133,8 +136,15 @@ class QuizSessionController extends Controller
                 'answer:id,is_correct',
             ])
             ->get();
-        if ($userAnswers->count() > 0) {
-            return response()->json(['message' => 'You have already answered this quiz session'], 400);
+
+        // if ($userAnswers->count() > 0) {
+        //     return response()->json(['message' => 'You have already answered this quiz session'], 400);
+        // }
+
+        if ($userAnswers->count() === 0) {
+            return response()->json([
+                'message' => 'You have not answered any questions yet',
+            ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
         // calculate score
@@ -171,5 +181,10 @@ class QuizSessionController extends Controller
                 'message' => 'Failed to finish quiz session',
             ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        return response()->json([
+            'message' => 'Successfully finished quiz session',
+            'quiz_session_result' => $quizSessionResult,
+        ]);
     }
 }

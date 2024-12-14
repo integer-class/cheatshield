@@ -15,7 +15,10 @@ class QuizQuestion extends ConsumerWidget {
         padding: EdgeInsets.all(16.0),
         child: Text(
           'Loading question...',
-          style: TextStyle(fontSize: 24),
+          style: TextStyle(
+            fontSize: 24,
+            color: Color(0xFF343300), // neutral content color
+          ),
           textAlign: TextAlign.left,
         ),
       );
@@ -33,6 +36,7 @@ class QuizQuestion extends ConsumerWidget {
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
+            color: Color(0xFF343300), // neutral color for the question text
           ),
           textAlign: TextAlign.left,
         ),

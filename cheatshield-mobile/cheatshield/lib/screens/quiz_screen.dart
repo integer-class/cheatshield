@@ -11,13 +11,15 @@ class QuizScreen extends ConsumerWidget {
     final quizState = ref.watch(quizProvider);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FDEF), // bg color
       appBar: AppBar(
+        backgroundColor: const Color(0xFFF8FDEF), // primary color
         title: Text(
           quizState != null ? quizState.quizSession.quiz.title : 'Quiz',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge
-              ?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: const Color(0xFF010800), // primary-content color
+                fontWeight: FontWeight.bold,
+              ),
         ),
       ),
       body: const QuizComponent(),

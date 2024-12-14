@@ -9,15 +9,12 @@ class ProfileHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final token = ref.watch(authProvider); // Retrieve token from authProvider
-
     // If token is not available, display login message
     if (token == null) {
       return const Center(child: Text('Please login to view profile.'));
     }
-
     final profileAsync =
         ref.watch(profileProvider(token)); // Get profile using token
-
     return profileAsync.when(
       data: (profile) {
         return ListTile(
@@ -30,7 +27,10 @@ class ProfileHeader extends ConsumerWidget {
           ),
           title: Text(
             profile['name'] ?? 'No Name',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF010800), // primary-content
+            ),
           ),
         );
       },

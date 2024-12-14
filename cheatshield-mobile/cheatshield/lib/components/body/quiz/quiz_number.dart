@@ -18,8 +18,9 @@ class QuizNumber extends ConsumerWidget {
               ? 'Question ${quizNotifier.currentQuestionIndex + 1} of ${quizState.quizSession.quiz.questions.length}'
               : 'Loading...',
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 14, // Adjust font size to better fit your design
             fontWeight: FontWeight.bold,
+            color: Color(0xFF343300), // Accent color
           ),
         ),
       ),
