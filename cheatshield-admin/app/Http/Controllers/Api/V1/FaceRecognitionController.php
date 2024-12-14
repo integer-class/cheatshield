@@ -96,6 +96,8 @@ class FaceRecognitionController extends Controller
             'looking_straight' => $result['looking_straight'],
         ];
 
+        // TODO: this _might_ be bad but we don't have concurrent session at the moment so it's probably fine
+        //       at least for now, otherwise we'll need to use event sourcing to prevent race conditions
         $userInQuizSession->save();
 
         return response()->json([

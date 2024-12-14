@@ -1,0 +1,55 @@
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:3.1.0
+    command:
+      - "--log.level=INFO"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--ping=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http3"
+      - "--entrypoints.websecure.http3"
+      - "--certificatesresolvers.tlsresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.tlsresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.tlsresolver.acme.email=dicha.arkana03@gmail.com"
+      - "--certificatesresolvers.tlsresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      # The Web UI
+      - "8080:8080"
+      - "8082:8082"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 2048MB
+          cpus: "0.75"
+        reservations:
+          memory: 100MB
+          cpus: "0.20"
+      restart_policy:
+        condition: unless-stopped
+        delay: 30s
+        window: 120s
+    healthcheck:
+      test: traefik healthcheck --ping
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - cheatshield-network
+    restart: unless-stopped
+
+networks:
+  cheatshield-network:
+    external: true
