@@ -15,9 +15,9 @@ COPY composer.json composer.lock ./
 COPY package.json bun.lockb ./
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts
-RUN --mount=type=cache,id=bun,target=/root/.bun/install/cache bun install --frozen-lockfile
-RUN curl -sfS https://dotenvx.sh/install.sh | sh
+RUN composer install --no-dev --optimize-autoloader --no-scripts && \
+    --mount=type=cache,id=bun,target=/root/.bun/install/cache bun install --frozen-lockfile && \
+    curl -sfS https://dotenvx.sh/install.sh | sh
 
 # Copy application files
 COPY . .
@@ -28,8 +28,6 @@ RUN bun run build
 
 # Second Stage: Runtime
 FROM ghcr.io/global-scholarship-services-indonesia/docker-base/laravel:main
-
-RUN docker-php-ext-install intl
 
 # inject private key to decrypt dotenvx
 ARG DOTENV_PRIVATE_KEY
