@@ -6,12 +6,10 @@ class HomeComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        HomeCode(),
-      ],
+    return const Scaffold(
+      body: Center(
+        child: HomeCode(),
+      ),
     );
   }
 }

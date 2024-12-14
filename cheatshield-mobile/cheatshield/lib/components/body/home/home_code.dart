@@ -83,23 +83,51 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        TextField(
-          controller: _codeController,
-          decoration: const InputDecoration(
-            labelText: 'Quiz Code',
-          ),
-        ),
-        const SizedBox(height: 16.0),
-        _isLoading
-            ? const CircularProgressIndicator()
-            : ElevatedButton(
-                onPressed: () => _joinQuiz(context),
-                child: const Text('Join Quiz'),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _codeController,
+              decoration: const InputDecoration(
+                labelText: 'Quiz Code',
+                border: OutlineInputBorder(),
               ),
-      ],
+            ),
+            const SizedBox(height: 16.0),
+            _isLoading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: () => _joinQuiz(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF343300), // Primary color
+                      minimumSize: const Size(double.infinity, 50),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    child: const Text(
+                      'Join Quiz',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFFD2D3C7), // Primary-content color
+                      ),
+                    ),
+                  ),
+
+            // ElevatedButton(
+            //     onPressed: () => _joinQuiz(context),
+            //     style: ElevatedButton.styleFrom(
+            //       minimumSize: const Size(double.infinity, 50),
+            //     ),
+            //     child: const Text('Join Quiz'),
+            //   ),
+          ],
+        ),
+      ),
     );
   }
 }
