@@ -15,9 +15,9 @@ COPY composer.json composer.lock ./
 COPY package.json bun.lockb ./
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts && \
-    --mount=type=cache,id=bun,target=/root/.bun/install/cache bun install --frozen-lockfile && \
-    curl -sfS https://dotenvx.sh/install.sh | sh
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN --mount=type=cache,id=bun,target=/root/.bun/install/cache bun install --frozen-lockfile
+RUN curl -sfS https://dotenvx.sh/install.sh | sh
 
 # Copy application files
 COPY . .
