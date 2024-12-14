@@ -2,6 +2,22 @@ services:
   cheatshield-admin:
     container_name: cheatshield-admin
     image: ghcr.io/integer-class/cheatshield-admin:main
+    networks:
+      - cheatshield-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: unless-stopped
+        delay: 30s
+        window: 120s
+      resources:
+        limits:
+          memory: 1024MB
+          cpus: "0.75"
+        reservations:
+          memory: 400MB
+          cpus: "0.20"
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
@@ -18,24 +34,7 @@ services:
       - "traefik.http.middlewares.cheatshield-admin-limiter.ratelimit.burst=100"
       - "traefik.http.middlewares.cheatshield-admin-limiter.ratelimit.period=1s"
     platform: linux/amd64
-    deploy:
-      mode: replicated
-      replicas: 1
-      restart_policy:
-        condition: unless-stopped
-        delay: 30s
-        window: 120s
-      resources:
-        limits:
-          memory: 1024MB
-          cpus: "0.75"
-        reservations:
-          memory: 400MB
-          cpus: "0.20"
-    networks:
-      - cheatshield-network
 
 networks:
   cheatshield-network:
     external: true
-
