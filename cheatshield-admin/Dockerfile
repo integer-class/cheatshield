@@ -1,5 +1,5 @@
 # First Stage: Build
-FROM ghcr.io/global-scholarship-services-indonesia/docker-base/laravel:main AS build
+FROM ghcr.io/global-scholarship-services-indonesia/docker-base/laravel:slim AS build
 
 ARG ENV
 ENV ENV=${ENV}
@@ -27,7 +27,7 @@ COPY .env.${ENV} .env
 RUN bun run build
 
 # Second Stage: Runtime
-FROM ghcr.io/global-scholarship-services-indonesia/docker-base/laravel:main
+FROM ghcr.io/global-scholarship-services-indonesia/docker-base/laravel:slim
 
 # inject private key to decrypt dotenvx
 ARG DOTENV_PRIVATE_KEY
