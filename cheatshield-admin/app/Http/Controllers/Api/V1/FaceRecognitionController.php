@@ -79,8 +79,10 @@ class FaceRecognitionController extends Controller
         $photo = $files[0];
 
         $userInQuizSession = UserInQuizSession::query()
-            ->where('user_id', $user->id)
-            ->where('user_in_quiz_session_id', $request->user_in_quiz_session_id)
+            ->where([
+                ['user_id', $user->id],
+                ['user_in_quiz_session_id', $request->user_in_quiz_session_id],
+            ])
             ->firstOrFail();
 
         $result = $this->faceRecognitionService->pingFaceRecognition($user, $userInQuizSession, $photo);
@@ -93,5 +95,12 @@ class FaceRecognitionController extends Controller
             'looking_down' => $result['looking_down'],
             'looking_straight' => $result['looking_straight'],
         ];
+
+        $userInQuizSession->save();
+
+        return response()->json([
+            'message' => 'Ping successful',
+            'data' => $userInQuizSession->status,
+        ]);
     }
 }
