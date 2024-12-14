@@ -86,20 +86,32 @@ class _HistoryComponentState extends State<HistoryComponent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FDEF), // bg color
       appBar: AppBar(
+        backgroundColor: const Color(0xFFF8FDEF), // primary color
         title: Text(
           'History',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge
-              ?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: const Color(0xFF010800),
+              fontWeight: FontWeight.bold), // primary-content color
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: const Color(0xFFCBCFC3),
+            height: 0.5,
+          ),
         ),
       ),
       body: _completedQuizzes.isEmpty
           ? const Center(
               child: Text(
                 'No completed quizzes yet.',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF343300), // neutral color
+                ),
               ),
             )
           : GridView.builder(
@@ -120,6 +132,7 @@ class _HistoryComponentState extends State<HistoryComponent> {
                       borderRadius: BorderRadius.circular(16.0),
                     ),
                     elevation: 4,
+                    color: const Color(0xFFEDEDED), // accent color for cards
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -128,7 +141,7 @@ class _HistoryComponentState extends State<HistoryComponent> {
                           Icon(
                             Icons.check_circle_outline,
                             size: 40,
-                            color: Theme.of(context).primaryColor,
+                            color: const Color(0xFF343300), // primary color
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -136,12 +149,16 @@ class _HistoryComponentState extends State<HistoryComponent> {
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: Color(0xFF343300), // neutral color
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'Score: ${quiz['score']}',
-                            style: const TextStyle(fontSize: 14),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF343300), // neutral color
+                            ),
                           ),
                         ],
                       ),

@@ -5,7 +5,7 @@ class ProfileService {
 
   ProfileService(this._dio);
 
-  final String baseUrl = 'http://192.168.151.146:80/api/v1';
+  final String baseUrl = 'http://192.168.1.4:80/api/v1';
 
   Future<Map<String, dynamic>> getProfile(String token) async {
     try {

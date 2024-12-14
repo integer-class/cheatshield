@@ -39,17 +39,18 @@ class UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FDEF), // bg color
       appBar: AppBar(
+        backgroundColor: const Color(0xFFF8FDEF), // bg color
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/profile'),
         ),
         title: Text(
           'Update Profile',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge
-              ?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: const Color(0xFF010800), // primary-content
+              fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(
@@ -103,7 +104,7 @@ class UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: const Color(0xFF343300),
                   minimumSize: const Size(double.infinity, 50),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -114,7 +115,7 @@ class UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
                   'Update Profile',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: const Color(0xFFD2D3C7),
                       ),
                 ),
               ),

@@ -16,11 +16,12 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      backgroundColor: const Color(0xFFF8FDEF), // bg color
+      body: const Column(
         children: [
-          const Navbar(),
-          const Expanded(
-            child: SingleChildScrollView(
+          Navbar(),
+          Expanded(
+            child: Center(
               child: HomeComponent(),
             ),
           ),

@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 class QuizService {
   final Dio _dio = Dio();
 
-  final String baseUrl = 'http://192.168.151.146:80/api/v1';
+  final String baseUrl = 'http://192.168.1.4:80/api/v1';
 
   Future<QuizResponse?> joinQuiz(String code, String token) async {
     try {

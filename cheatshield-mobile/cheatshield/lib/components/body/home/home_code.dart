@@ -57,7 +57,7 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
       // Check if quiz state has been updated successfully
       final quiz = ref.read(quizProvider);
 
-      if (quiz != null) {
+      if (quiz != null && quiz.quizSession.code == code) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Joined quiz successfully')),
         );
@@ -102,7 +102,7 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
                 : ElevatedButton(
                     onPressed: () => _joinQuiz(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF343300), // Primary color
+                      backgroundColor: const Color(0xFF343300), // neutral color
                       minimumSize: const Size(double.infinity, 50),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -113,18 +113,10 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
                       'Join Quiz',
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFFD2D3C7), // Primary-content color
+                        color: Color(0xFFD2D3C7), // neutral-content color
                       ),
                     ),
                   ),
-
-            // ElevatedButton(
-            //     onPressed: () => _joinQuiz(context),
-            //     style: ElevatedButton.styleFrom(
-            //       minimumSize: const Size(double.infinity, 50),
-            //     ),
-            //     child: const Text('Join Quiz'),
-            //   ),
           ],
         ),
       ),

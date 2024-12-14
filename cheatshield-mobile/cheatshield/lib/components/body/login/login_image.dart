@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class LoginImage extends StatelessWidget {
-  const LoginImage({super.key}); // Pastikan konstruktor ini sudah const
+  const LoginImage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +10,7 @@ class LoginImage extends StatelessWidget {
       style: TextStyle(
         fontSize: 32,
         fontWeight: FontWeight.bold,
-        color: Colors.black,
+        color: Color(0xFF010800), // Primary-content color
       ),
     );
   }

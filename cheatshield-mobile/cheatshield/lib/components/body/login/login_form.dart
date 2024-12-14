@@ -16,10 +16,12 @@ class LoginForm extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: TextField(
-            controller: emailController, // Assign the controller
+            controller: emailController,
             decoration: const InputDecoration(
               labelText: 'Email',
               border: OutlineInputBorder(),
+              labelStyle: TextStyle(
+                  color: Color(0xFF0D0E00)), // Secondary-content color
             ),
           ),
         ),
@@ -27,11 +29,13 @@ class LoginForm extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: TextField(
-            controller: passwordController, // Assign the controller
+            controller: passwordController,
             obscureText: true,
             decoration: const InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
+              labelStyle: TextStyle(
+                  color: Color(0xFF0D0E00)), // Secondary-content color
             ),
           ),
         ),
@@ -56,19 +60,19 @@ class LoginForm extends ConsumerWidget {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
+              backgroundColor: Color(0xFF343300), // Primary color
               minimumSize: const Size(double.infinity, 50),
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            child: Text(
+            child: const Text(
               'Login',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                color: Color(0xFFD2D3C7), // Primary-content color
+              ),
             ),
           ),
         ),
