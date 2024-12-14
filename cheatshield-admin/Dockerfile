@@ -46,10 +46,10 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/public && \
     chmod -R 755 /var/www/storage
 
 # Copy supervisor configuration
-COPY ./supervisord.conf /etc/supervisord.conf
+COPY ./docker/supervisor/supervisord.conf /etc/supervisord.conf
 
 # Copy nginx configuration
-COPY ./nginx.conf /etc/nginx/sites-available/default
+COPY ./docker/nginx/nginx.conf /etc/nginx/sites-available/default
 
 EXPOSE 80
 
