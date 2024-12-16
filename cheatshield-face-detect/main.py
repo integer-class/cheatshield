@@ -1,5 +1,6 @@
 import os
 import shutil
+import json
 import traceback
 from typing import Annotated, Any
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
@@ -28,12 +29,13 @@ async def health():
     """
     return {"status": "ok"}
 
-class GenerateEmbeddingRequest(BaseModel):
-    video: Annotated[UploadFile, File(...)]
-    user_id: Annotated[str, Form()]
-
 @app.post("/api/v1/face-recognition/embedding")
-async def generate_embedding(user_id: Annotated[str, Form()], video_directions: Annotated[dict[str, UploadFile], Form(...)]) -> dict[str, Any]:
+async def generate_embedding(
+    user_id: Annotated[str, Form()],
+    up_video: Annotated[UploadFile, Form(...)],
+    down_video: Annotated[UploadFile, Form(...)],
+    left_video: Annotated[UploadFile, Form(...)],
+    right_video: Annotated[UploadFile, Form(...)]) -> dict[str, Any]:
     """
     Generates embeddings for the faces in the uploaded videos
     """
@@ -42,9 +44,15 @@ async def generate_embedding(user_id: Annotated[str, Form()], video_directions: 
 
     dirs = prepare_workspace_dir_for_user(user_id)
 
+    video_with_directions = zip(
+        ["up", "down", "left", "right"],
+        [up_video, down_video, left_video, right_video]
+    )
+
     try:
-        results = []
-        for direction, video in video_directions.items():
+        results: list[dict[str, Any]] = []
+        for direction, video in video_with_directions:
+            print(f"Processing {direction} video...")
             with timer.timer("Clean up files for user"):
                 clean_up_workspace_dir_for_user(dirs)
 
@@ -78,6 +86,7 @@ async def generate_embedding(user_id: Annotated[str, Form()], video_directions: 
                 "frames_processed": detect_results["processed_frames"],
                 "embeddings_generated": len(embeddings),
             })
+            print(f"Done with {direction} video!")
 
         return {
             "status": "success",
