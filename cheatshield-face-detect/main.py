@@ -75,7 +75,7 @@ async def generate_embedding(
                 face_embedding = FaceEmbedding()
                 embeddings = face_embedding.generate_embeddings(dirs["faces_dir"])
 
-            with timer.timer("Save embeddings"):
+            with timer.timer("save_embeddings"):
                 binary_output_path = os.path.join(dirs["embeddings_dir"], f"embedding-{direction}.npy")
                 face_embedding.save_embeddings_binary(embeddings, binary_output_path)
 
