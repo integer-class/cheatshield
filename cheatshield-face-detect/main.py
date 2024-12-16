@@ -53,29 +53,29 @@ async def generate_embedding(
         results: list[dict[str, Any]] = []
         for direction, video in video_with_directions:
             print(f"Processing {direction} video...")
-            with timer.timer("Clean up files for user"):
+            with timer.timer("clean_up_workspace"):
                 clean_up_workspace_dir_for_user(dirs)
 
-            with timer.timer("Save uploaded file into a buffer"):
+            with timer.timer("save_uploaded_files_into_workspace"):
                 input_video_path = os.path.join(dirs["input_video_dir"], f"video-{direction}.mp4")
                 with open(input_video_path, "wb") as buffer:
                     shutil.copyfileobj(video.file, buffer)
 
-            with timer.timer("Extract frames"):
+            with timer.timer("extract_frames"):
                 frame_paths = await extract_frames(input_video_path, dirs["frames_dir"])
 
-            with timer.timer("Detect faces"):
+            with timer.timer("detect_faces"):
                 detect_results = await detect_faces_in_frames(
                     frames_dir=dirs["frames_dir"],
                     faces_dir=dirs["faces_dir"],
                     processed_dir=dirs["processed_frames_dir"]
                 )
 
-            with timer.timer("Generate embeddings"):
+            with timer.timer("generate_embeddings"):
                 face_embedding = FaceEmbedding()
                 embeddings = face_embedding.generate_embeddings(dirs["faces_dir"])
 
-            with timer.timer("Save embeddings"):
+            with timer.timer("save_embeddings"):
                 binary_output_path = os.path.join(dirs["embeddings_dir"], f"embedding-{direction}.npy")
                 face_embedding.save_embeddings_binary(embeddings, binary_output_path)
 
