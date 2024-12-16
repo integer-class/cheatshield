@@ -116,3 +116,35 @@ async def generate_embedding(
             }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/face-recognition/check")
+async def check_face_position(user_id: Annotated[str,Form()], frame: Annotated[UploadFile, File(...)]):
+    """
+    Checks if the frame being sent matches the face in the embedding database
+    """
+
+    timer = PerformanceTimer()
+
+    dirs = prepare_workspace_dir_for_user(user_id)
+
+    try:
+        with timer.timer("Clean up files for user"):
+            clean_up_workspace_dir_for_user(dirs)
+
+        with timer.timer("Load embeddings"):
+            face_embedding = FaceEmbedding()
+            embeddings = face_embedding.load_embeddings_binary(dirs["embeddings_dir"])
+
+        with timer.timer("Match with embeddings"):
+            frame_bytes = await frame.read()
+            result = face_embedding.match_face_with_embedding(frame_bytes, embeddings)
+
+        return {
+            "status": "success",
+            "message": "Frame processed successfully",
+            "frame_processed": result,
+            "facenet_status": timer.get_stats()
+        }
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))

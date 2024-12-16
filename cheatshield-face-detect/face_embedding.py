@@ -126,10 +126,17 @@ class FaceEmbedding:
         return embeddings_array
 
     def load_embeddings_binary(self, embeddings_dir: str) -> NDArray[np.float32]:
-        embeddings_path = os.path.join(embeddings_dir, "embeddings.npy")
-        embeddings_array: NDArray[np.float32] = np.load(embeddings_path, allow_pickle=False)
-
-        return embeddings_array
+        embeddings_list = []
+        for filename in os.listdir(embeddings_dir):
+            if filename.endswith(".npy"):
+                embeddings_path = os.path.join(embeddings_dir, filename)
+                embeddings_array: NDArray[np.float32] = np.load(embeddings_path, allow_pickle=False)
+                embeddings_list.append(embeddings_array)
+        
+        if not embeddings_list:
+            raise FileNotFoundError(f"No embedding files found in {embeddings_dir}")
+        
+        return np.concatenate(embeddings_list)
 
     def match_face_with_embedding(self, frame: bytes, embeddings: NDArray[np.float32]) -> dict[str, float|list[float]]:
         image = Image.open(io.BytesIO(frame))
