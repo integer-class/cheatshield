@@ -1,7 +1,9 @@
+from concurrent.futures import ThreadPoolExecutor
 import os
 import shutil
 import traceback
 import asyncio
+import logging
 from typing import Annotated, Any
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from frame_extractor import extract_frames
@@ -53,20 +55,23 @@ async def generate_embedding(
         [straight_video, up_video, down_video, left_video, right_video]
     )
 
-    async def process_video(direction: str, video: UploadFile):
+    async def process_video(direction: str, video: UploadFile, loop: asyncio.AbstractEventLoop):
         print(f"Processing {direction} video...")
-        loop = asyncio.get_event_loop()
         input_video_path = os.path.join(dirs["input_video_dir"], f"video-{direction}.mp4")
-        await loop.run_in_executor(None, lambda: shutil.copyfileobj(video.file, open(input_video_path, "wb")))
+        _ = await loop.run_in_executor(None, lambda: shutil.copyfileobj(video.file, open(input_video_path, "wb")))
 
         with timer.timer("extract_frames"):
-            frame_paths = await extract_frames(input_video_path, dirs["frames_dir"])
+            frame_paths = await extract_frames(
+                video_path=input_video_path,
+                output_directory=f"{dirs["frames_dir"]}-{direction}",
+                loop=loop
+            )
 
         with timer.timer("detect_faces"):
             detect_results = await detect_faces_in_frames(
-                frames_dir=dirs["frames_dir"],
-                faces_dir=dirs["faces_dir"],
-                processed_dir=dirs["processed_frames_dir"]
+                frames_dir=f"{dirs["frames_dir"]}-{direction}",
+                faces_dir=f"{dirs["faces_dir"]}-{direction}",
+                processed_dir=f"{dirs["processed_frames_dir"]}-{direction}"
             )
 
         with timer.timer("generate_embeddings"):
@@ -86,22 +91,28 @@ async def generate_embedding(
         }
 
     try:
-        tasks = [process_video(direction, video) for direction, video in video_with_directions]
-        gathered_results = await asyncio.gather(*tasks, return_exceptions=True)
-        results = []
-        for result in gathered_results:
-            if isinstance(result, Exception):
-                traceback.print_exc()
-                raise HTTPException(status_code=500, detail=str(result))
-            else:
-                results.append(result)
-                print(f"Done with {result['direction']} video!")
+        with ThreadPoolExecutor() as executor:
+            print("Processing tasks in thread pool executor")
+            loop = asyncio.get_running_loop()
+            tasks = [
+                process_video(direction, video, loop)
+                for direction, video in video_with_directions
+            ]
+            gathered_results = await asyncio.gather(*tasks, return_exceptions=True)
+            results = []
+            for result in gathered_results:
+                if isinstance(result, Exception):
+                    traceback.print_exc()
+                    raise HTTPException(status_code=500, detail=str(result))
+                else:
+                    results.append(result)
+                    print(f"Done with {result['direction']} video!")
 
-        return {
-            "status": "success",
-            "message": "Videos processed successfully",
-            "results": results,
-            "facenet_status": timer.get_stats()
-        }
+            return {
+                "status": "success",
+                "message": "Videos processed successfully",
+                "results": results,
+                "facenet_status": timer.get_stats()
+            }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

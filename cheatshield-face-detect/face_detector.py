@@ -1,6 +1,10 @@
 # face_detector.py
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 import os
+import traceback
 import cv2
+from fastapi import HTTPException
 import torch
 from facenet_pytorch import MTCNN
 import numpy as np
@@ -24,7 +28,7 @@ class FaceDetector:
             margin=20
         )
 
-    async def process_frame(self, frame_path: str, faces_dir: str, processed_dir: str):
+    def process_frame(self, frame_path: str, faces_dir: str, processed_dir: str):
         # Read image with PIL
         image = Image.open(frame_path)
 
@@ -82,13 +86,13 @@ class FaceDetector:
 
         return len([prob for prob in cast(list[float], probs) if prob > self.confidence_level])
 
-async def process_frame(detector: FaceDetector,
-                        frames_dir: str,
-                        faces_dir: str,
-                        processed_dir: str,
-                        filename: str):
+def process_frame(detector: FaceDetector,
+                  frames_dir: str,
+                  faces_dir: str,
+                  processed_dir: str,
+                  filename: str) -> int:
     frame_path = os.path.join(frames_dir, filename)
-    faces_found = await detector.process_frame(frame_path, faces_dir, processed_dir)
+    faces_found = detector.process_frame(frame_path, faces_dir, processed_dir)
     return faces_found
 
 async def detect_faces_in_frames(frames_dir: str, faces_dir: str, processed_dir: str):
@@ -102,11 +106,22 @@ async def detect_faces_in_frames(frames_dir: str, faces_dir: str, processed_dir:
     image_files = [f for f in os.listdir(frames_dir)
                   if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
 
-    for filename in image_files:
-        frame_path = os.path.join(frames_dir, filename)
-        faces_found = await detector.process_frame(frame_path, faces_dir, processed_dir)
-        total_faces += faces_found
-        processed_frames += 1
+    with ThreadPoolExecutor() as executor:
+        loop = asyncio.get_running_loop()
+        tasks: list[asyncio.Future[int]] = []
+        for filename in image_files:
+            frame_path = os.path.join(frames_dir, filename)
+            tasks.append(
+                loop.run_in_executor(executor, detector.process_frame, frame_path, faces_dir, processed_dir)
+            )
+            processed_frames += 1
+        gathered_results = await asyncio.gather(*tasks, return_exceptions=True)
+        for result in gathered_results:
+            if isinstance(result, BaseException):
+                traceback.print_exc()
+                raise HTTPException(status_code=500, detail=str(result))
+            else:
+                total_faces += result
 
     return {
         "processed_frames": processed_frames,
