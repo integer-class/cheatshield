@@ -1,48 +1,50 @@
 import os
+import shutil
 
-def prepare_workspace_dir_for_user(user_id: str) -> dict[str, str]:
+def prepare_workspace_dir_for_user(user_id: str) -> dict[str, str|dict[str,str]]:
     workspace_dir = "workspace"
     user_workspace_dir = os.path.join(workspace_dir, f"user-{user_id}")
     input_video_dir = os.path.join(workspace_dir, f"user-{user_id}", "input_videos")
-    frames_dir = os.path.join(workspace_dir, f"user-{user_id}", "frames")
-    faces_dir = os.path.join(workspace_dir, f"user-{user_id}", "faces")
-    processed_frames_dir = os.path.join(workspace_dir, f"user-{user_id}", "processed_frames")
+
+    faces_directions = ["straight", "up", "down", "left", "right"]
+    frames_dirs: dict[str,str] = {}
+    faces_dirs: dict[str,str]  = {}
+    processed_frames_dirs: dict[str,str]  = {}
+    for direction in faces_directions:
+        frames_dirs[direction] = os.path.join(workspace_dir, f"user-{user_id}", f"frames_{direction}")
+        faces_dirs[direction] = os.path.join(workspace_dir, f"user-{user_id}", f"faces_{direction}")
+        processed_frames_dirs[direction] = os.path.join(workspace_dir, f"user-{user_id}", f"processed_frames_{direction}")
+
     embeddings_dir = os.path.join(workspace_dir, f"user-{user_id}", "embeddings")
 
     # create every directory if it doesn't exist
-    for dir in [workspace_dir,
-                user_workspace_dir,
-                input_video_dir,
-                frames_dir,
-                faces_dir,
-                processed_frames_dir,
-                embeddings_dir]:
-        if not os.path.exists(dir):
-            os.makedirs(dir)
+    try:
+        for dir in [user_workspace_dir,
+                    input_video_dir,
+                    embeddings_dir]:
+            if os.path.exists(dir):
+                shutil.rmtree(dir)
+            else:
+                os.makedirs(dir)
+    except Exception as e:
+        print(f"Error creating directories: {str(e)}")
+
+    try:
+        for dir_dict in [frames_dirs, faces_dirs, processed_frames_dirs]:
+            for dir_path in dir_dict.values():
+                if os.path.exists(dir_path):
+                    shutil.rmtree(dir_path)
+                else:
+                    os.makedirs(dir_path)
+    except Exception as e:
+        print(f"Error creating directories: {str(e)}")
 
     return {
         "workspace_dir": workspace_dir,
         "user_workspace_dir": user_workspace_dir,
         "input_video_dir": input_video_dir,
-        "frames_dir": frames_dir,
-        "faces_dir": faces_dir,
-        "processed_frames_dir": processed_frames_dir,
+        "frames_dirs": frames_dirs,
+        "faces_dirs": faces_dirs,
+        "processed_frames_dirs": processed_frames_dirs,
         "embeddings_dir": embeddings_dir
     }
-
-def clean_up_workspace_dir_for_user(dirs: dict[str, str]) -> None:
-    for dir_path in dirs.values():
-        if dir_path == dirs["workspace_dir"]:
-            continue
-        if dir_path == dirs["embeddings_dir"]:
-            continue
-        if not os.path.exists(dir_path):
-            continue
-
-        for file_name in os.listdir(dir_path):
-            file_path = os.path.join(dir_path, file_name)
-            try:
-                if os.path.isfile(file_path):
-                    os.unlink(file_path)
-            except Exception as e:
-                print(f"Error deleting file {file_path}: {e}")

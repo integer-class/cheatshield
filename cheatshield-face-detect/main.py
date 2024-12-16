@@ -3,16 +3,15 @@ import os
 import shutil
 import traceback
 import asyncio
-import logging
 from typing import Annotated, Any
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException
+from fastapi import FastAPI, Form, UploadFile, HTTPException
 from frame_extractor import extract_frames
 from face_detector import detect_faces_in_frames
 from timer import PerformanceTimer
 from face_embedding import FaceEmbedding
 import torch
 
-from util import prepare_workspace_dir_for_user, clean_up_workspace_dir_for_user
+from util import prepare_workspace_dir_for_user
 
 print("Face Detection API")
 print("Is CUDA Available: ", torch.cuda.is_available())
@@ -47,9 +46,6 @@ async def generate_embedding(
 
     dirs = prepare_workspace_dir_for_user(user_id)
 
-    # Clean up workspace once before processing
-    clean_up_workspace_dir_for_user(dirs)
-
     video_with_directions = zip(
         ["straight", "up", "down", "left", "right"],
         [straight_video, up_video, down_video, left_video, right_video]
@@ -57,29 +53,31 @@ async def generate_embedding(
 
     async def process_video(direction: str, video: UploadFile, loop: asyncio.AbstractEventLoop):
         print(f"Processing {direction} video...")
-        input_video_path = os.path.join(dirs["input_video_dir"], f"video-{direction}.mp4")
+        input_video_path = os.path.join(dirs["input_video_dir"], f"video_{direction}.mp4")
         _ = await loop.run_in_executor(None, lambda: shutil.copyfileobj(video.file, open(input_video_path, "wb")))
 
         with timer.timer("extract_frames"):
             frame_paths = await extract_frames(
                 video_path=input_video_path,
-                output_directory=f"{dirs["frames_dir"]}-{direction}",
+                output_directory=dirs["frames_dirs"][direction],
                 loop=loop
             )
 
         with timer.timer("detect_faces"):
             detect_results = await detect_faces_in_frames(
-                frames_dir=f"{dirs["frames_dir"]}-{direction}",
-                faces_dir=f"{dirs["faces_dir"]}-{direction}",
-                processed_dir=f"{dirs["processed_frames_dir"]}-{direction}"
+                frames_dir=dirs["frames_dirs"][direction],
+                faces_dir=dirs["faces_dirs"][direction],
+                processed_dir=dirs["processed_frames_dirs"][direction]
             )
 
         with timer.timer("generate_embeddings"):
             face_embedding = FaceEmbedding()
-            embeddings = face_embedding.generate_embeddings(dirs["faces_dir"])
+            embeddings = face_embedding.generate_embeddings(
+                faces_dir=dirs["faces_dirs"][direction]
+            )
 
         with timer.timer("save_embeddings"):
-            binary_output_path = os.path.join(dirs["embeddings_dir"], f"embedding-{direction}.npy")
+            binary_output_path = os.path.join(dirs["embeddings_dir"], f"embedding_{direction}.npy")
             face_embedding.save_embeddings_binary(embeddings, binary_output_path)
 
         return {
