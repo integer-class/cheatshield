@@ -43,6 +43,8 @@ async def generate_embedding(
     Generates embeddings for the faces in the uploaded videos
     """
 
+    timer = PerformanceTimer()
+
     dirs = prepare_workspace_dir_for_user(user_id)
 
     # Clean up workspace once before processing
@@ -54,8 +56,6 @@ async def generate_embedding(
     )
 
     async def process_video(direction: str, video: UploadFile, loop: asyncio.AbstractEventLoop):
-        timer = PerformanceTimer()
-
         print(f"Processing {direction} video...")
         input_video_path = os.path.join(dirs["input_video_dir"], f"video-{direction}.mp4")
         _ = await loop.run_in_executor(None, lambda: shutil.copyfileobj(video.file, open(input_video_path, "wb")))
@@ -88,7 +88,6 @@ async def generate_embedding(
             "faces_detected": detect_results["total_faces"],
             "frames_processed": detect_results["processed_frames"],
             "embeddings_generated": len(embeddings),
-            "timer_stats": timer.get_stats()
         }
 
     try:
@@ -113,6 +112,7 @@ async def generate_embedding(
                 "status": "success",
                 "message": "Videos processed successfully",
                 "results": results,
+                "facenet_status": timer.get_stats()
             }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
