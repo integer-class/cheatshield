@@ -1,14 +1,13 @@
+import 'package:cheatshield/config.dart';
+import 'package:cheatshield/services/http.dart';
+import 'package:cheatshield/services/storage.dart';
 import 'package:dio/dio.dart';
 
 class AuthService {
-  final Dio _dio = Dio();
-
-  final String baseUrl = 'http://localhost/api/v1';
-
   Future<String?> login(String email, String password) async {
     try {
-      final response = await _dio.post(
-        '$baseUrl/auth/login',
+      final response = await httpClient.post(
+        '$apiBaseUrl/auth/login',
         data: {
           'email': email,
           'password': password,
@@ -20,21 +19,20 @@ class AuthService {
           },
           followRedirects: false,
           validateStatus: (status) {
-            return status! < 500; // Accept status codes less than 500
+            return status! < 500;
           },
         ),
       );
 
-      // if response status code is 200, return the token
+      await storage.write(key: 'token', value: response.data['token']);
+
       if (response.statusCode == 200) {
         return response.data['token'];
-      } else {
-        // if response status code is not 200, return the error message
-        return response.data['message'];
       }
+
+      return response.data['message'];
     } on DioException catch (e) {
       if (e.response != null) {
-        // Handle the error based on the status code
         if (e.response?.statusCode == 302) {
           return 'Redirection: further action needs to be taken in order to complete the request';
         } else {
@@ -47,10 +45,11 @@ class AuthService {
     }
   }
 
-  Future<String?> logout(String token) async {
+  Future<String?> logout() async {
     try {
-      final response = await _dio.post(
-        '$baseUrl/auth/logout',
+      final token = await storage.read(key: 'token');
+      final response = await httpClient.post(
+        '$apiBaseUrl/auth/logout',
         options: Options(
           headers: {
             'accept': 'application/json',

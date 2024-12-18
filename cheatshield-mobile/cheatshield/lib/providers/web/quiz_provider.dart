@@ -17,8 +17,8 @@ class QuizNotifier extends StateNotifier<QuizResponse?> {
 
   int get currentQuestionIndex => _currentQuestionIndex;
 
-  Future<void> joinQuiz(String code, String token) async {
-    final quizResponse = await _quizService.joinQuiz(code, token);
+  Future<void> joinQuiz(String code) async {
+    final quizResponse = await _quizService.joinQuiz(code);
     if (quizResponse != null) {
       _currentQuestionIndex = 0;
       state = quizResponse;
@@ -51,18 +51,11 @@ class QuizNotifier extends StateNotifier<QuizResponse?> {
     final quizSessionId = state!.quizSession.id;
     final questionId =
         state!.quizSession.quiz.questions[_currentQuestionIndex].id;
-    final token = ref.read(authProvider);
-
-    if (token == null) {
-      print('Token is null. Cannot submit answer.');
-      return null;
-    }
 
     final response = await _quizService.submitAnswerForQuestion(
       quizSessionId,
       questionId,
       answerId,
-      token,
     );
 
     if (response != null) {
@@ -77,14 +70,8 @@ class QuizNotifier extends StateNotifier<QuizResponse?> {
     if (state == null) return null;
 
     final quizSessionId = state!.quizSession.id;
-    final token = ref.read(authProvider);
 
-    if (token == null) {
-      print('Token is null. Cannot finish quiz session.');
-      return null;
-    }
-
-    final response = await _quizService.finishQuizSession(quizSessionId, token);
+    final response = await _quizService.finishQuizSession(quizSessionId);
 
     if (response != null) {
       return response;
@@ -95,8 +82,8 @@ class QuizNotifier extends StateNotifier<QuizResponse?> {
   }
 
   // history
-  Future<List<QuizHistory>?> getQuizHistory(String token) async {
-    final response = await _quizService.getQuizHistory(token);
+  Future<List<QuizHistory>?> getQuizHistory() async {
+    final response = await _quizService.getQuizHistory();
 
     if (response != null) {
       return response;

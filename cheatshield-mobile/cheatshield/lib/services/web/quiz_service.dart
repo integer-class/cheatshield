@@ -1,16 +1,18 @@
+import 'package:cheatshield/config.dart';
 import 'package:cheatshield/models/quiz_model.dart';
+import 'package:cheatshield/services/storage.dart';
 import 'package:dio/dio.dart';
 import 'package:cheatshield/models/quiz_history_model.dart';
+import 'package:flutter/material.dart';
 
 class QuizService {
   final Dio _dio = Dio();
 
-  final String baseUrl = 'http://192.168.1.4/api/v1';
-
-  Future<QuizResponse?> joinQuiz(String code, String token) async {
+  Future<QuizResponse?> joinQuiz(String code) async {
     try {
+      final token = await storage.read(key: 'token');
       final response = await _dio.post(
-        '$baseUrl/quiz/join/$code',
+        '$apiBaseUrl/quiz/join/$code',
         options: Options(
           headers: {
             'accept': 'application/json',
@@ -34,11 +36,15 @@ class QuizService {
     }
   }
 
-  Future<Map<String, dynamic>?> submitAnswerForQuestion(String quizSessionId,
-      String questionId, String answerId, String token) async {
+  Future<Map<String, dynamic>?> submitAnswerForQuestion(
+    String quizSessionId,
+    String questionId,
+    String answerId,
+  ) async {
     try {
+      final token = await storage.read(key: 'token');
       final response = await _dio.post(
-        '$baseUrl/quiz/answer',
+        '$apiBaseUrl/quiz/answer',
         data: {
           'quiz_session_id': quizSessionId,
           'question_id': questionId,
@@ -61,11 +67,11 @@ class QuizService {
     }
   }
 
-  Future<Map<String, dynamic>?> finishQuizSession(
-      String quizSessionId, String token) async {
+  Future<Map<String, dynamic>?> finishQuizSession(String quizSessionId) async {
     try {
+      final token = await storage.read(key: 'token');
       final response = await _dio.post(
-        '$baseUrl/quiz/finish',
+        '$apiBaseUrl/quiz/finish',
         data: {'quiz_session_id': quizSessionId},
         options: Options(
           headers: {
@@ -85,10 +91,11 @@ class QuizService {
   }
 
   // history
-  Future<List<QuizHistory>?> getQuizHistory(String token) async {
+  Future<List<QuizHistory>?> getQuizHistory() async {
     try {
+      final token = await storage.read(key: 'token');
       final response = await _dio.get(
-        '$baseUrl/quiz/history',
+        '$apiBaseUrl/quiz/history',
         options: Options(
           headers: {
             'accept': 'application/json',
@@ -98,24 +105,20 @@ class QuizService {
         ),
       );
 
-      print('Quiz History Raw Response Status Code: ${response.statusCode}');
-      print('Quiz History Raw Response Data: ${response.data}');
+      debugPrint(
+          'Quiz History Raw Response Status Code: ${response.statusCode}');
+      debugPrint('Quiz History Raw Response Data: ${response.data}');
 
       if (response.statusCode == 200 && response.data != null) {
-        // If the response is a map instead of a list, wrap it in a list
-        if (response.data is Map) {
-          return [QuizHistory.fromJson(response.data)];
-        }
-
-        return (response.data as List)
+        return (response.data.data as List)
             .map((e) => QuizHistory.fromJson(e))
             .toList();
       } else {
-        print('Quiz History Response Error: ${response.data}');
+        debugPrint('Quiz History Response Error: ${response.data}');
         return null;
       }
     } catch (e) {
-      print('Quiz History Exception: $e');
+      debugPrint('Quiz History Exception: $e');
       return null;
     }
   }

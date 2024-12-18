@@ -1,16 +1,14 @@
+import 'package:cheatshield/config.dart';
+import 'package:cheatshield/services/http.dart';
+import 'package:cheatshield/services/storage.dart';
 import 'package:dio/dio.dart';
 
 class ProfileService {
-  final Dio _dio;
-
-  ProfileService(this._dio);
-
-  final String baseUrl = 'http://192.168.1.4:80/api/v1';
-
-  Future<Map<String, dynamic>> getProfile(String token) async {
+  Future<Map<String, dynamic>> getProfile() async {
     try {
-      final response = await _dio.get(
-        '$baseUrl/user',
+      final token = await storage.read(key: 'token');
+      final response = await httpClient.get(
+        '$apiBaseUrl/user',
         options: Options(
           headers: {
             'accept': 'application/json',
@@ -47,10 +45,12 @@ class ProfileService {
 
   // updateProfile method
   Future<Map<String, dynamic>> updateProfile(
-      String token, Map<String, dynamic> data) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final response = await _dio.put(
-        '$baseUrl/user',
+      final token = await storage.read(key: 'token');
+      final response = await httpClient.put(
+        '$apiBaseUrl/user',
         data: data,
         options: Options(
           headers: {

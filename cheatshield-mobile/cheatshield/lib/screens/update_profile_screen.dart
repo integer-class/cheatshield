@@ -24,15 +24,12 @@ class UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
 
     // Fetch profile data asynchronously
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final token = ref.read(authProvider);
-      if (token != null) {
-        final profileData = await ref.read(profileProvider(token).future);
+      final profileData = await ref.read(profileProvider("").future);
 
-        // Set initial values to the controllers
-        _nameController.text = profileData['name'] ?? '';
-        _emailController.text = profileData['email'] ?? '';
-        _nimController.text = profileData['nim'] ?? '';
-      }
+      // Set initial values to the controllers
+      _nameController.text = profileData['name'] ?? '';
+      _emailController.text = profileData['email'] ?? '';
+      _nimController.text = profileData['nim'] ?? '';
     });
   }
 

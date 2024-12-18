@@ -25,18 +25,9 @@ class _HistoryComponentState extends ConsumerState<HistoryComponent> {
   Future<void> _fetchHistory() async {
     try {
       setState(() => _isLoading = true);
-      final token = ref.read(authProvider);
-
-      if (token == null) {
-        setState(() {
-          _error = 'Not authenticated';
-          _isLoading = false;
-        });
-        return;
-      }
 
       final quizNotifier = ref.read(quizProvider.notifier);
-      final historiesResponse = await quizNotifier.getQuizHistory(token);
+      final historiesResponse = await quizNotifier.getQuizHistory();
 
       if (historiesResponse != null) {
         setState(() {
@@ -61,27 +52,9 @@ class _HistoryComponentState extends ConsumerState<HistoryComponent> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FDEF),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF8FDEF),
-        title: Text(
-          'History',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: const Color(0xFF010800), fontWeight: FontWeight.bold),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: const Color(0xFFCBCFC3),
-            height: 0.5,
-          ),
-        ),
-      ),
-      body: RefreshIndicator(
-        onRefresh: _fetchHistory,
-        child: _buildBody(),
-      ),
+    return RefreshIndicator(
+      onRefresh: _fetchHistory,
+      child: _buildBody(),
     );
   }
 

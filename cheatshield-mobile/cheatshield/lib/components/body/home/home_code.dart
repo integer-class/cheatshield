@@ -1,7 +1,6 @@
 import 'package:cheatshield/providers/web/quiz_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cheatshield/providers/web/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeCode extends ConsumerStatefulWidget {
@@ -25,19 +24,11 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
     if (!context.mounted) return;
 
     final quizNotifier = ref.read(quizProvider.notifier);
-    final token = ref.watch(authProvider); // Replace with actual token
     final code = _codeController.text.trim();
 
     if (code.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a quiz code')),
-      );
-      return;
-    }
-
-    if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Authentication token is missing')),
       );
       return;
     }
@@ -48,7 +39,7 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
     });
 
     try {
-      await quizNotifier.joinQuiz(code, token);
+      await quizNotifier.joinQuiz(code);
 
       // Reset loading state
       setState(() {
@@ -63,11 +54,12 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
           const SnackBar(content: Text('Joined quiz successfully')),
         );
         context.go('/quiz');
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to join quiz')),
-        );
+        return;
       }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to join quiz')),
+      );
     } catch (e) {
       // Reset loading state in case of an unexpected error
       setState(() {
