@@ -19,9 +19,15 @@ class LoginForm extends ConsumerWidget {
             controller: emailController,
             decoration: const InputDecoration(
               labelText: 'Email',
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderSide: BorderSide(
+                  width: 4.0,
+                  color: Color(0xFF18171e),
+                ),
+              ),
               labelStyle: TextStyle(
-                  color: Color(0xFF0D0E00)), // Secondary-content color
+                color: Color(0xFF18171e),
+              ), // Secondary-content color
             ),
           ),
         ),
@@ -44,13 +50,13 @@ class LoginForm extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: ElevatedButton(
             onPressed: () async {
+              if (!context.mounted) return;
+
               final email = emailController.text;
               final password = passwordController.text;
 
-              // Call the login function from the Riverpod provider
               await ref.read(authProvider.notifier).login(email, password);
 
-              // If login is successful, navigate to the home page
               if (ref.read(authProvider) != null) {
                 context.go('/home');
               } else {
@@ -60,18 +66,18 @@ class LoginForm extends ConsumerWidget {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF343300), // Primary color
+              backgroundColor: Theme.of(context).colorScheme.primary,
               minimumSize: const Size(double.infinity, 50),
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            child: const Text(
+            child: Text(
               'Login',
               style: TextStyle(
                 fontWeight: FontWeight.w800,
-                color: Color(0xFFD2D3C7), // Primary-content color
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
           ),

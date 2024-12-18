@@ -22,11 +22,12 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
   }
 
   Future<void> _joinQuiz(BuildContext context) async {
+    if (!context.mounted) return;
+
     final quizNotifier = ref.read(quizProvider.notifier);
     final token = ref.watch(authProvider); // Replace with actual token
     final code = _codeController.text.trim();
 
-    // Input validation
     if (code.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a quiz code')),
@@ -63,7 +64,6 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
         );
         context.go('/quiz');
       } else {
-        // Handle case where quiz is null
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to join quiz')),
         );
@@ -89,6 +89,12 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Image.asset(
+              'assets/images/logo.png',
+              width: 380,
+              height: 100,
+            ),
+            const SizedBox(height: 16.0),
             TextField(
               controller: _codeController,
               decoration: const InputDecoration(
@@ -102,18 +108,18 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
                 : ElevatedButton(
                     onPressed: () => _joinQuiz(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF343300), // neutral color
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       minimumSize: const Size(double.infinity, 50),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Join Quiz',
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFFD2D3C7), // neutral-content color
+                        color: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
                   ),

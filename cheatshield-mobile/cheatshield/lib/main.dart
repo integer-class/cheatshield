@@ -15,9 +15,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Cheatshield',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue).copyWith(
+          surface: Color(0xFFf5f5f5),
+          primary: Color(0xFF18171e),
+        ),
         useMaterial3: true,
-        fontFamily: GoogleFonts.montserrat().fontFamily,
+        fontFamily: GoogleFonts.comfortaa().fontFamily,
       ),
       routerConfig: appRouter,
     );

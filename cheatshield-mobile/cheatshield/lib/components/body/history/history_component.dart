@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cheatshield/components/footer/bottom_navbar.dart';
 import 'package:cheatshield/models/quiz_history_model.dart';
 import 'package:cheatshield/providers/web/quiz_provider.dart';
 import 'package:cheatshield/providers/web/auth_provider.dart';
@@ -82,10 +81,6 @@ class _HistoryComponentState extends ConsumerState<HistoryComponent> {
       body: RefreshIndicator(
         onRefresh: _fetchHistory,
         child: _buildBody(),
-      ),
-      bottomNavigationBar: BottomNavbar(
-        activeIndex: 1,
-        onDestinationSelected: (int index) {},
       ),
     );
   }

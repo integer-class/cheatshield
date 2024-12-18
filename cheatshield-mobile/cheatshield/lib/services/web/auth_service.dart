@@ -3,11 +3,8 @@ import 'package:dio/dio.dart';
 class AuthService {
   final Dio _dio = Dio();
 
-  // baseUrl
-  final String baseUrl =
-      'http://192.168.1.4:80/api/v1'; // Change this to your own IP address
+  final String baseUrl = 'http://localhost/api/v1';
 
-  // Login
   Future<String?> login(String email, String password) async {
     try {
       final response = await _dio.post(
@@ -50,7 +47,6 @@ class AuthService {
     }
   }
 
-  // logout
   Future<String?> logout(String token) async {
     try {
       final response = await _dio.post(
@@ -63,28 +59,24 @@ class AuthService {
           },
           followRedirects: false,
           validateStatus: (status) {
-            return status! < 500; // Accept status codes less than 500
+            return status! < 500;
           },
         ),
       );
 
-      // if response status code is 200, return the message
       if (response.statusCode == 200) {
         return response.data['message'];
       } else {
-        // if response status code is not 200, return the error message
         return response.data['message'];
       }
     } on DioException catch (e) {
       if (e.response != null) {
-        // Handle the error based on the status code
         if (e.response?.statusCode == 302) {
           return 'Redirection: further action needs to be taken in order to complete the request';
         } else {
           return 'Error: ${e.response?.statusCode} - ${e.response?.statusMessage}';
         }
       } else {
-        // Handle other errors such as network issues
         return 'Network error: ${e.message}';
       }
     }

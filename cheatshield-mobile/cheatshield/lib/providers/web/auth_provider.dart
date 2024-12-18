@@ -18,7 +18,6 @@ class AuthNotifier extends StateNotifier<String?> {
         !token.contains('email') &&
         !token.contains('password')) {
       state = token;
-      print(token);
       return true;
     } else {
       state = null;

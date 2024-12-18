@@ -5,13 +5,10 @@ class LoginImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
-      'Cheatshield',
-      style: TextStyle(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF010800), // Primary-content color
-      ),
+    return Image.asset(
+      'assets/images/logo.png',
+      width: 380,
+      height: 100,
     );
   }
 }
