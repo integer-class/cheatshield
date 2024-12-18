@@ -16,8 +16,8 @@
         androidComposition = pkgs.androidenv.composeAndroidPackages {
           cmdLineToolsVersion = "8.0"; # emulator related: newer versions are not only compatible with avdmanager
           platformToolsVersion = "34.0.4";
-          buildToolsVersions = [ "30.0.3" "33.0.2" "34.0.0" ];
-          platformVersions = [ "28" "31" "32" "33" "34" ];
+          buildToolsVersions = [ "30.0.3" "33.0.1" "34.0.0" "35.0.0" ];
+          platformVersions = [ "28" "31" "32" "33" "34" "35" ];
           abiVersions = [ "armeabi-v7a" "arm64-v8a" ]; # emulator related: on an ARM machine, replace "x86_64" with
           includeNDK = false;
           includeSystemImages = false;
@@ -46,7 +46,7 @@
             JAVA_HOME = jdk17.home;
             FLUTTER_ROOT = flutter327;
             DART_ROOT = "${flutter327}/bin/cache/dart-sdk";
-            GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/libexec/android-sdk/build-tools/33.0.2/aapt2";
+            GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/libexec/android-sdk/build-tools/35.0.0/aapt2";
             CHROME_EXECUTABLE = "${chromium}/bin/chromium";
             buildInputs = [
               flutter327
