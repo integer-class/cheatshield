@@ -4,6 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
+      - ".github/workflows/cd-face-detect.yml"
       - "cheatshield-face-detect/**"
 
 jobs:
