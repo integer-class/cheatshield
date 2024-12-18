@@ -44,12 +44,12 @@
             ANDROID_HOME = "${androidSdk}/libexec/android-sdk";
             ANDROID_SDK_ROOT = "${androidSdk}/libexec/android-sdk";
             JAVA_HOME = jdk17.home;
-            FLUTTER_ROOT = flutter319;
-            DART_ROOT = "${flutter319}/bin/cache/dart-sdk";
+            FLUTTER_ROOT = flutter327;
+            DART_ROOT = "${flutter327}/bin/cache/dart-sdk";
             GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/libexec/android-sdk/build-tools/33.0.2/aapt2";
             CHROME_EXECUTABLE = "${chromium}/bin/chromium";
             buildInputs = [
-              flutter319
+              flutter327
               androidSdk # The customized SDK that we've made above
               jdk17
             ];
