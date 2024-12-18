@@ -13,7 +13,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:$PATH"
 
 RUN uv venv
-RUN source .venv/bin/activate
+RUN . .venv/bin/activate
 
 COPY pyproject.toml .
 RUN uv sync
