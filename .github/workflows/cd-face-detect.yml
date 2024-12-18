@@ -1,12 +1,14 @@
-name: CI/CD
+name: Build Face Detect
 
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "cheatshield-face-detect/**"
 
 jobs:
   cd:
-    name: CD
+    name: Build Image
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -34,7 +36,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}-admin
+          images: ghcr.io/${{ github.repository }}-face-detect
           flavor: |
             latest=false
           tags: |
@@ -44,7 +46,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: "./cheatshield-admin"
+          context: "./cheatshield-fact-detect"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -52,7 +54,6 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-build
           build-args: |
             ENV=production
-            DOTENV_PRIVATE_KEY=${{ secrets.DOTENV_PRIVATE_KEY }}
           outputs: type=image,compression=zstd,compression-level=3
           platforms: linux/amd64
           provenance: false
