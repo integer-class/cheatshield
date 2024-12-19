@@ -2,6 +2,8 @@ services:
   cheatshield-face-detect:
     container_name: cheatshield-face-detect
     image: ghcr.io/integer-class/cheatshield-face-detect:main
+    volumes:
+      - ./workspace:/app/workspace
     networks:
       - cheatshield-network
     deploy:
