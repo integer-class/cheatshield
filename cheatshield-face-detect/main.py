@@ -4,7 +4,7 @@ import shutil
 import traceback
 import asyncio
 from typing import Annotated, Any
-from fastapi import FastAPI, Form, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, Header, UploadFile, HTTPException
 from frame_extractor import extract_frames
 from face_detector import detect_faces_in_frames
 from timer import PerformanceTimer
@@ -17,6 +17,7 @@ print("Face Detection API")
 print("Is CUDA Available: ", torch.cuda.is_available())
 
 app = FastAPI(debug=True)
+API_TOKEN = os.getenv("API_TOKEN")
 
 @app.get("/")
 async def root():
@@ -36,11 +37,18 @@ async def generate_embedding(
     up_video: Annotated[UploadFile, Form(...)],
     down_video: Annotated[UploadFile, Form(...)],
     left_video: Annotated[UploadFile, Form(...)],
-    right_video: Annotated[UploadFile, Form(...)]
+    right_video: Annotated[UploadFile, Form(...)],
+    token: Annotated[str|None, Header()],
 ) -> dict[str, Any]:
     """
     Generates embeddings for the faces in the uploaded videos
     """
+
+    if token is None:
+        raise HTTPException(status_code=401, detail="Token is required")
+
+    if token != API_TOKEN:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     timer = PerformanceTimer()
 
@@ -116,19 +124,26 @@ async def generate_embedding(
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/v1/face-recognition/check")
-async def check_face_position(user_id: Annotated[str,Form()], frame: Annotated[UploadFile, File(...)]):
+async def check_face_position(
+    user_id: Annotated[str,Form()],
+    frame: Annotated[UploadFile, File(...)],
+    token: Annotated[str|None, Header()]
+) -> dict[str, Any]:
     """
     Checks if the frame being sent matches the face in the embedding database
     """
+
+    if token is None:
+        raise HTTPException(status_code=401, detail="Token is required")
+
+    if token != API_TOKEN:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     timer = PerformanceTimer()
 
     dirs = prepare_workspace_dir_for_user(user_id)
 
     try:
-        with timer.timer("Clean up files for user"):
-            clean_up_workspace_dir_for_user(dirs)
-
         with timer.timer("Load embeddings"):
             face_embedding = FaceEmbedding()
             embeddings = face_embedding.load_embeddings_binary(dirs["embeddings_dir"])
