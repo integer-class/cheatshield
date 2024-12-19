@@ -8,7 +8,7 @@ ENV DOTENV_PRIVATE_KEY=${DOTENV_PRIVATE_KEY_PYTHON}
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends gcc curl && \
+RUN apt-get update && apt-get install -y --no-install-recommends gcc curl libgl1-mesa-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # dotenvx and uv
