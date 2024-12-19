@@ -55,6 +55,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-build
           build-args: |
             ENV=production
+            DOTENV_PRIVATE_KEY=${{ secrets.DOTENV_PRIVATE_KEY_PYTHON }}
           outputs: type=image,compression=zstd,compression-level=3
           platforms: linux/amd64
           provenance: false
