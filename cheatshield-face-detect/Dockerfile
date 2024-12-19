@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc curl && \
 
 # dotenvx and uv
 RUN curl -sfS https://dotenvx.sh/install.sh | sh
-RUN curl -sfS https://astral.sh/install.sh | sh
+RUN curl -sfS https://astral.sh/uv/install.sh | sh
 
 ENV PATH="/root/.local/bin:$PATH"
 
