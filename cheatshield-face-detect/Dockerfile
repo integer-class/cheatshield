@@ -29,4 +29,4 @@ COPY .env .
 EXPOSE 8000
 
 # Set the command to run the application
-CMD ["dotenvx", "run", "--", '"uv", "run", "--", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["dotenvx", "run", "--", "uv", "run", "--", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
