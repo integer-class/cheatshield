@@ -1,4 +1,3 @@
-import 'package:cheatshield/models/quiz_model.dart';
 import 'package:cheatshield/providers/web/quiz_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,7 +35,9 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
 
     if (code.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a quiz code')),
+        const SnackBar(
+          content: Text('Please enter a quiz code'),
+        ),
       );
       return;
     }
