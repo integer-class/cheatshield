@@ -13,20 +13,16 @@ class QuizResponse {
   String message;
   QuizSession quizSession;
   int currentQuestionIndex;
-  UserInQuizSession userInQuizSession;
 
   QuizResponse({
     required this.message,
     required this.quizSession,
     this.currentQuestionIndex = 0,
-    required this.userInQuizSession,
   });
 
   factory QuizResponse.fromJson(Map<String, dynamic> json) => QuizResponse(
         message: json["message"],
-        quizSession: QuizSession.fromJson(json["quiz_session"]),
-        userInQuizSession:
-            UserInQuizSession.fromJson(json["user_in_quiz_session"]),
+        quizSession: QuizSession.fromJson(json["data"]["quiz_session"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -46,7 +42,7 @@ class QuizSession {
   dynamic deletedAt;
   DateTime createdAt;
   DateTime updatedAt;
-  Quiz quiz;
+  QuizItem quiz;
 
   QuizSession({
     required this.id,
@@ -73,7 +69,7 @@ class QuizSession {
         deletedAt: json["deleted_at"],
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
-        quiz: Quiz.fromJson(json["quiz"]),
+        quiz: QuizItem.fromJson(json["quiz"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -91,7 +87,7 @@ class QuizSession {
       };
 }
 
-class Quiz {
+class QuizItem {
   String id;
   String userId;
   String title;
@@ -101,7 +97,7 @@ class Quiz {
   dynamic deletedAt;
   List<Question> questions;
 
-  Quiz({
+  QuizItem({
     required this.id,
     required this.userId,
     required this.title,
@@ -112,7 +108,7 @@ class Quiz {
     required this.questions,
   });
 
-  factory Quiz.fromJson(Map<String, dynamic> json) => Quiz(
+  factory QuizItem.fromJson(Map<String, dynamic> json) => QuizItem(
         id: json["id"],
         userId: json["user_id"],
         title: json["title"],

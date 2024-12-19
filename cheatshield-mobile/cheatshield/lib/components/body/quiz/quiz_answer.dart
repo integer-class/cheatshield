@@ -1,10 +1,11 @@
 import 'package:cheatshield/providers/web/quiz_provider.dart';
+import 'package:cheatshield/services/web/quiz_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class QuizAnswer extends ConsumerStatefulWidget {
-  const QuizAnswer({Key? key}) : super(key: key);
+  const QuizAnswer({super.key});
 
   @override
   ConsumerState<QuizAnswer> createState() => _QuizAnswerState();
@@ -22,25 +23,20 @@ class _QuizAnswerState extends ConsumerState<QuizAnswer> {
   void _submitAnswer() async {
     if (selectedAnswerId == null) return;
 
-    final quizNotifier = ref.read(quizProvider.notifier);
-    final quizState = ref.read(quizProvider);
+    final quizService = ref.read(quizProvider.notifier);
 
-    if (quizState == null) return;
+    final response = await quizService.submitAnswer(selectedAnswerId!);
 
-    final response = await quizNotifier.submitAnswer(selectedAnswerId!);
-
-    if (response != null && quizNotifier.isLastQuestion()) {
-      // Logika submit kuis
-      print("Quiz submitted!");
-      await quizNotifier.finishQuizSession();
-      // Tambahkan navigasi ke layar akhir atau hasil kuis
+    if (response != null && quizService.isLastQuestion()) {
+      await quizService.finishQuizSession();
       context.go('/home');
-    } else {
-      quizNotifier.nextQuestion(); // Pindah ke pertanyaan berikutnya
-      setState(() {
-        selectedAnswerId = null; // Reset pilihan jawaban
-      });
+      return;
     }
+
+    quizService.nextQuestion();
+    setState(() {
+      selectedAnswerId = null;
+    });
   }
 
   @override

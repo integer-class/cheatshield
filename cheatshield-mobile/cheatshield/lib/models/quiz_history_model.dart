@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final quizResponse = quizResponseFromJson(jsonString);
-
 import 'dart:convert';
 
 QuizHistory quizHistoryFromJson(String str) =>
@@ -21,8 +17,10 @@ class QuizHistory {
   factory QuizHistory.fromJson(Map<String, dynamic> json) => QuizHistory(
         message: json["message"],
         quizSessionResults: List<QuizSessionResult>.from(
-            json["quiz_session_results"]
-                .map((x) => QuizSessionResult.fromJson(x))),
+          json["quiz_session_results"].map(
+            (x) => QuizSessionResult.fromJson(x),
+          ),
+        ),
       );
 
   Map<String, dynamic> toJson() => {

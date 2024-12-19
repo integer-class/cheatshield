@@ -1,31 +1,35 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cheatshield/services/web/profile_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final profileServiceProvider = Provider<ProfileService>((ref) {
-  return ProfileService();
-});
+part 'profile_provider.g.dart';
 
-final profileProvider =
-    FutureProvider.family<Map<String, dynamic>, String>((ref, _) async {
-  final profileService = ref.watch(profileServiceProvider);
-  final profile = await profileService.getProfile();
+@riverpod
+class Profile extends _$Profile {
+  late ProfileService profileService;
 
-  if (profile.containsKey('error')) {
-    throw Exception(profile['error']);
+  @override
+  Map<String, dynamic> build() {
+    profileService = ref.read(profileServiceProvider.notifier);
+    return {};
   }
 
-  return profile;
-});
+  Future<Map<String, dynamic>> getProfile() async {
+    final profile = await profileService.getProfile();
 
-final profileUpdateProvider =
-    FutureProvider.family<Map<String, dynamic>, Map<String, dynamic>>(
-        (ref, data) async {
-  final profileService = ref.watch(profileServiceProvider);
-  final profile = await profileService.updateProfile(data);
+    if (profile.containsKey('error')) {
+      throw Exception(profile['error']);
+    }
 
-  if (profile.containsKey('error')) {
-    throw Exception(profile['error']);
+    return profile;
   }
 
-  return profile;
-});
+  Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
+    final profile = await profileService.updateProfile(data);
+
+    if (profile.containsKey('error')) {
+      throw Exception(profile['error']);
+    }
+
+    return profile;
+  }
+}

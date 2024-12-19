@@ -1,23 +1,25 @@
-import 'package:cheatshield/config.dart';
 import 'package:cheatshield/services/http.dart';
 import 'package:cheatshield/services/storage.dart';
 import 'package:dio/dio.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-class ProfileService {
+part 'profile_service.g.dart';
+
+@riverpod
+class ProfileService extends _$ProfileService {
+  @override
+  Map<String, dynamic> build() {
+    return {};
+  }
+
   Future<Map<String, dynamic>> getProfile() async {
     try {
-      final token = await storage.read(key: 'token');
+      final token = await ref.read(storageProvider).get('token');
       final response = await httpClient.get(
-        '$apiBaseUrl/user',
+        '/user',
         options: Options(
           headers: {
-            'accept': 'application/json',
-            'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
-          },
-          followRedirects: false,
-          validateStatus: (status) {
-            return status! < 500; // Accept status codes less than 500
           },
         ),
       );
@@ -48,19 +50,13 @@ class ProfileService {
     Map<String, dynamic> data,
   ) async {
     try {
-      final token = await storage.read(key: 'token');
+      final token = await ref.read(storageProvider).get('token');
       final response = await httpClient.put(
-        '$apiBaseUrl/user',
+        '/user',
         data: data,
         options: Options(
           headers: {
-            'accept': 'application/json',
-            'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
-          },
-          followRedirects: false,
-          validateStatus: (status) {
-            return status! < 500; // Accept status codes less than 500
           },
         ),
       );

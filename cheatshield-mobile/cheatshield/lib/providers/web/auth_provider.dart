@@ -1,36 +1,42 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cheatshield/services/storage.dart';
 import 'package:cheatshield/services/web/auth_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final authProvider = StateNotifierProvider<AuthNotifier, String?>((ref) {
-  return AuthNotifier();
-});
+part 'auth_provider.g.dart';
 
-class AuthNotifier extends StateNotifier<String?> {
-  AuthNotifier() : super(null);
+@riverpod
+class Auth extends _$Auth {
+  late AuthService authService;
+  late Storage storage;
 
-  final AuthService _authService = AuthService();
-
-  // login
-  Future<bool> login(String email, String password) async {
-    final token = await _authService.login(email, password);
-
-    if (token != null &&
-        !token.contains('email') &&
-        !token.contains('password')) {
-      state = token;
-      return true;
-    } else {
-      state = null;
-      return false;
-    }
+  @override
+  Map<String, dynamic> build() {
+    authService = ref.read(authServiceProvider.notifier);
+    storage = ref.read(storageProvider);
+    return {
+      'is_loading': false,
+      'token': null,
+    };
   }
 
-  // logout
-  Future<void> logout() async {
-    final message = await _authService.logout();
+  Future<bool> login(String email, String password) async {
+    state['is_loading'] = true;
+    final token = await authService.login(email, password);
+    state['is_loading'] = false;
 
-    if (message != null) {
-      state = null;
+    if (token != null) {
+      await storage.set('token', token);
+      state['token'] = token;
+      return true;
     }
+
+    return false;
+  }
+
+  Future<void> logout() async {
+    state['is_loading'] = true;
+    await authService.logout();
+    await storage.remove('token');
+    state['is_loading'] = false;
   }
 }

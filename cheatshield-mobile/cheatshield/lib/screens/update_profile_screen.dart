@@ -1,3 +1,4 @@
+import 'package:cheatshield/services/web/profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cheatshield/providers/web/profile_provider.dart';
@@ -18,106 +19,134 @@ class UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
   final _emailController = TextEditingController();
   final _nimController = TextEditingController();
 
+  late ProfileService profileService;
+
   @override
   void initState() {
+    profileService = ref.read(profileServiceProvider.notifier);
     super.initState();
-
-    // Fetch profile data asynchronously
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final profileData = await ref.read(profileProvider("").future);
-
-      // Set initial values to the controllers
-      _nameController.text = profileData['name'] ?? '';
-      _emailController.text = profileData['email'] ?? '';
-      _nimController.text = profileData['nim'] ?? '';
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FDEF), // bg color
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF8FDEF), // bg color
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/profile'),
-        ),
-        title: Text(
-          'Update Profile',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: const Color(0xFF010800), // primary-content
-              fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Name cannot be empty' : null,
-              ),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Email cannot be empty' : null,
-              ),
-              TextFormField(
-                controller: _nimController,
-                decoration: const InputDecoration(labelText: 'NIM'),
-                validator: (value) =>
-                    value!.isEmpty ? 'NIM cannot be empty' : null,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    final token = ref.read(authProvider); // Get the token
-                    final data = {
-                      'token': token,
-                      'name': _nameController.text,
-                      'email': _emailController.text,
-                      'nim': _nimController.text,
-                    };
+    return FutureBuilder(
+        future: profileService.getProfile(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final profileData = snapshot.data as Map<String, dynamic>;
+            _nameController.text = profileData['name'] ?? '';
+            _emailController.text = profileData['email'] ?? '';
+            _nimController.text = profileData['nim'] ?? '';
+            return _buildBody(context);
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
 
-                    ref.read(profileUpdateProvider(data).future).then((value) {
-                      if (token != null) {
-                        ref.invalidate(profileProvider(token));
-                      }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Profile updated!')),
-                      );
-                    }).catchError((error) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: $error')),
-                      );
-                    });
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF343300),
-                  minimumSize: const Size(double.infinity, 50),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
+          return const Center(child: CircularProgressIndicator());
+        });
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    width: 4.0,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                child: Text(
-                  'Update Profile',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFFD2D3C7),
-                      ),
+                labelStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                ), // Secondary-content color
+              ),
+              validator: (value) =>
+                  value!.isEmpty ? 'Name cannot be empty' : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    width: 4.0,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                labelStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                ), // Secondary-content color
+              ),
+              validator: (value) =>
+                  value!.isEmpty ? 'Email cannot be empty' : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _nimController,
+              decoration: InputDecoration(
+                labelText: 'NIM',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    width: 4.0,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                labelStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                ), // Secondary-content color
+              ),
+              validator: (value) =>
+                  value!.isEmpty ? 'NIM cannot be empty' : null,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  final token = ref.read(authProvider); // Get the token
+                  final data = {
+                    'token': token,
+                    'name': _nameController.text,
+                    'email': _emailController.text,
+                    'nim': _nimController.text,
+                  };
+
+                  profileService.updateProfile(data).then((value) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Profile updated!')),
+                    );
+                  }).catchError((error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $error')),
+                    );
+                  });
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                minimumSize: const Size(double.infinity, 50),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
                 ),
               ),
-            ],
-          ),
+              child: Text(
+                'Update Profile',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+              ),
+            ),
+          ],
         ),
       ),
     );

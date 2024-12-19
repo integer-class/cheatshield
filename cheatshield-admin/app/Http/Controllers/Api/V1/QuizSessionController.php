@@ -43,15 +43,20 @@ class QuizSessionController extends Controller
         }
 
         $userSession = UserInQuizSession::query()
-            ->create([
+            ->createOrFirst([
+                'user_id' => $user->id,
+                'quiz_session_id' => $session->id,
+            ], [
                 'user_id' => $user->id,
                 'quiz_session_id' => $session->id,
             ]);
 
         return response()->json([
             'message' => 'Joined successfully',
-            'quiz_session' => $session,
-            'user_in_quiz_session' => $userSession,
+            'data' => [
+                'quiz_session' => $session,
+                'user_in_quiz_session' => $userSession,
+            ],
         ]);
     }
 
@@ -80,10 +85,9 @@ class QuizSessionController extends Controller
 
         return response()->json([
             'message' => 'Successfully retrieved quiz session results',
-            'quiz_session_results' => $resultsWithTitles,
+            'data' => $resultsWithTitles,
         ]);
     }
-
 
     public function submitAnswerForQuestion(Request $request): JsonResponse
     {
@@ -205,7 +209,7 @@ class QuizSessionController extends Controller
 
         return response()->json([
             'message' => 'Successfully finished quiz session',
-            'quiz_session_result' => $quizSessionResult,
+            'data' => $quizSessionResult,
         ]);
     }
 }

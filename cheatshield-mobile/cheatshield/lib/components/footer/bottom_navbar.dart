@@ -14,6 +14,14 @@ class _BottomNavbarState extends State<BottomNavbar> {
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final currentRoute =
+          GoRouter.of(context).routeInformationProvider.value.uri;
+      setState(() {
+        _activeIndex = _routeNameToIndex(currentRoute.path);
+      });
+    });
   }
 
   @override
@@ -26,8 +34,8 @@ class _BottomNavbarState extends State<BottomNavbar> {
             backgroundColor: Theme.of(context).colorScheme.surface,
             indicatorColor: Theme.of(context).colorScheme.primary,
             labelTextStyle: WidgetStateProperty.all(
-              const TextStyle(
-                color: Color(0xFF010800),
+              TextStyle(
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -52,17 +60,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
               setState(() {
                 _activeIndex = value;
               });
-              switch (value) {
-                case 0:
-                  context.go('/home');
-                  break;
-                case 1:
-                  context.go('/history');
-                  break;
-                case 2:
-                  context.go('/profile');
-                  break;
-              }
+              context.go(_indexToRouteName(value));
             },
             destinations: const <NavigationDestination>[
               NavigationDestination(
@@ -82,5 +80,33 @@ class _BottomNavbarState extends State<BottomNavbar> {
         ),
       ],
     );
+  }
+
+  int _routeNameToIndex(String routeName) {
+    if (routeName == '/home') {
+      return 0;
+    }
+
+    if (routeName == '/history') {
+      return 1;
+    }
+
+    if (routeName.contains('profile')) {
+      return 2;
+    }
+
+    return 0;
+  }
+
+  String _indexToRouteName(int index) {
+    switch (index) {
+      case 0:
+        return '/home';
+      case 1:
+        return '/history';
+      case 2:
+        return '/profile';
+    }
+    return '/home';
   }
 }

@@ -68,11 +68,11 @@ class _HistoryComponentState extends ConsumerState<HistoryComponent> {
     }
 
     if (_histories.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No completed quizzes yet.',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: Theme.of(context).textTheme.titleLarge?.fontSize,
             fontWeight: FontWeight.bold,
             color: Color(0xFF343300),
           ),

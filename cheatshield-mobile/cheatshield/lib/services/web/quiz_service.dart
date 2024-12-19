@@ -1,36 +1,37 @@
-import 'package:cheatshield/config.dart';
 import 'package:cheatshield/models/quiz_model.dart';
+import 'package:cheatshield/services/http.dart';
 import 'package:cheatshield/services/storage.dart';
 import 'package:dio/dio.dart';
 import 'package:cheatshield/models/quiz_history_model.dart';
 import 'package:flutter/material.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-class QuizService {
-  final Dio _dio = Dio();
+part 'quiz_service.g.dart';
+
+@riverpod
+class QuizService extends _$QuizService {
+  @override
+  Future<QuizResponse?> build() async {
+    return null;
+  }
 
   Future<QuizResponse?> joinQuiz(String code) async {
     try {
-      final token = await storage.read(key: 'token');
-      final response = await _dio.post(
-        '$apiBaseUrl/quiz/join/$code',
+      final token = await ref.read(storageProvider).get('token');
+      final response = await httpClient.post(
+        '/quiz/join/$code',
         options: Options(
           headers: {
-            'accept': 'application/json',
-            'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
-          },
-          followRedirects: false,
-          validateStatus: (status) {
-            return status! < 500; // Accept status codes less than 500
           },
         ),
       );
 
       if (response.statusCode == 200 && response.data != null) {
         return QuizResponse.fromJson(response.data);
-      } else {
-        return null;
       }
+
+      return null;
     } catch (e) {
       return null;
     }
@@ -42,9 +43,9 @@ class QuizService {
     String answerId,
   ) async {
     try {
-      final token = await storage.read(key: 'token');
-      final response = await _dio.post(
-        '$apiBaseUrl/quiz/answer',
+      final token = await ref.read(storageProvider).get('token');
+      final response = await httpClient.post(
+        '/quiz/answer',
         data: {
           'quiz_session_id': quizSessionId,
           'question_id': questionId,
@@ -52,8 +53,6 @@ class QuizService {
         },
         options: Options(
           headers: {
-            'accept': 'application/json',
-            'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
           },
         ),
@@ -69,14 +68,14 @@ class QuizService {
 
   Future<Map<String, dynamic>?> finishQuizSession(String quizSessionId) async {
     try {
-      final token = await storage.read(key: 'token');
-      final response = await _dio.post(
-        '$apiBaseUrl/quiz/finish',
-        data: {'quiz_session_id': quizSessionId},
+      final token = await ref.read(storageProvider).get('token');
+      final response = await httpClient.post(
+        '/quiz/finish',
+        data: {
+          'quiz_session_id': quizSessionId,
+        },
         options: Options(
           headers: {
-            'accept': 'application/json',
-            'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
           },
         ),
@@ -93,24 +92,18 @@ class QuizService {
   // history
   Future<List<QuizHistory>?> getQuizHistory() async {
     try {
-      final token = await storage.read(key: 'token');
-      final response = await _dio.get(
-        '$apiBaseUrl/quiz/history',
+      final token = await ref.read(storageProvider).get('token');
+      final response = await httpClient.get(
+        '/quiz/history',
         options: Options(
           headers: {
-            'accept': 'application/json',
-            'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
           },
         ),
       );
 
-      debugPrint(
-          'Quiz History Raw Response Status Code: ${response.statusCode}');
-      debugPrint('Quiz History Raw Response Data: ${response.data}');
-
       if (response.statusCode == 200 && response.data != null) {
-        return (response.data.data as List)
+        return (response.data["data"] as List)
             .map((e) => QuizHistory.fromJson(e))
             .toList();
       } else {

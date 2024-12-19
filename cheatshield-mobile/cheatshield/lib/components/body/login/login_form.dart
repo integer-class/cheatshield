@@ -8,6 +8,8 @@ class LoginForm extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(authProvider)['is_loading'] as bool;
+
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
 
@@ -41,7 +43,8 @@ class LoginForm extends ConsumerWidget {
               labelText: 'Password',
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
-                  color: Color(0xFF0D0E00)), // Secondary-content color
+                color: Color(0xFF0D0E00),
+              ),
             ),
           ),
         ),
@@ -55,13 +58,26 @@ class LoginForm extends ConsumerWidget {
               final email = emailController.text;
               final password = passwordController.text;
 
-              await ref.read(authProvider.notifier).login(email, password);
+              try {
+                final isSuccesful = await ref
+                    .read(authProvider.notifier)
+                    .login(email, password);
 
-              if (ref.read(authProvider) != null) {
-                context.go('/home');
-              } else {
+                if (isSuccesful) {
+                  context.go('/home');
+                  return;
+                }
+
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Invalid email or password')),
+                  const SnackBar(
+                    content: Text('Invalid email or password'),
+                  ),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Something went wrong'),
+                  ),
                 );
               }
             },
@@ -73,13 +89,15 @@ class LoginForm extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            child: Text(
-              'Login',
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
-            ),
+            child: isLoading
+                ? const CircularProgressIndicator()
+                : Text(
+                    'Login',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
           ),
         ),
       ],

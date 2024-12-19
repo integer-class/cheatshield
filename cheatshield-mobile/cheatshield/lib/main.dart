@@ -4,14 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(const ProviderScope(child: CheatshieldApp()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CheatshieldApp extends ConsumerWidget {
+  const CheatshieldApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appRouter = ref.watch(routerProvider);
     return MaterialApp.router(
       title: 'Cheatshield',
       theme: ThemeData(

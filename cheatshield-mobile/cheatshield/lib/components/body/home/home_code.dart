@@ -1,3 +1,4 @@
+import 'package:cheatshield/models/quiz_model.dart';
 import 'package:cheatshield/providers/web/quiz_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,14 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
   final TextEditingController _codeController = TextEditingController();
   bool _isLoading = false;
 
+  late Quiz quizNotifier;
+
+  @override
+  void initState() {
+    quizNotifier = ref.read(quizProvider.notifier);
+    super.initState();
+  }
+
   @override
   void dispose() {
     _codeController.dispose();
@@ -23,7 +32,6 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
   Future<void> _joinQuiz(BuildContext context) async {
     if (!context.mounted) return;
 
-    final quizNotifier = ref.read(quizProvider.notifier);
     final code = _codeController.text.trim();
 
     if (code.isEmpty) {
@@ -39,17 +47,14 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
     });
 
     try {
-      await quizNotifier.joinQuiz(code);
+      final quizResponse = await quizNotifier.joinQuiz(code);
 
       // Reset loading state
       setState(() {
         _isLoading = false;
       });
 
-      // Check if quiz state has been updated successfully
-      final quiz = ref.read(quizProvider);
-
-      if (quiz != null && quiz.quizSession.code == code) {
+      if (quizResponse != null && quizResponse.quizSession.code == code) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Joined quiz successfully')),
         );
@@ -68,7 +73,8 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('An unexpected error occurred: ${e.toString()}')),
+          content: Text('An unexpected error occurred: ${e.toString()}'),
+        ),
       );
     }
   }
