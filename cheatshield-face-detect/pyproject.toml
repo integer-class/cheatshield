@@ -9,6 +9,19 @@ dependencies = [
   "facenet-pytorch>=2.5.3",
   "fastapi[standard]>=0.115.5",
   "opencv-python>=4.10.0.84",
-  "torch==2.5.1",
-  "torchvision==0.20.1",
+  "torch==2.5.1+cpu ; platform_system != 'Darwin'",
+  "torchvision==0.20.1+cpu ; platform_system != 'Darwin'",
 ]
+
+[tool.uv.sources]
+torchvision = [
+    { index = "pytorch-cpu", marker = "platform_system != 'Darwin'" },
+]
+torch = [
+    { index = "pytorch-cpu", marker = "platform_system != 'Darwin'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
