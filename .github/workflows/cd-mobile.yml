@@ -58,5 +58,5 @@ jobs:
       with:
         name: Releases
         path: |
-          build/app/outputs/flutter-apk/
+          ./cheatshield-mobile/cheatshield/build/app/outputs/flutter-apk/
 
