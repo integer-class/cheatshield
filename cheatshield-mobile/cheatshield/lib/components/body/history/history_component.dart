@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cheatshield/models/quiz_history_model.dart';
 import 'package:cheatshield/providers/web/quiz_provider.dart';
-import 'package:cheatshield/providers/web/auth_provider.dart';
 
 class HistoryComponent extends ConsumerStatefulWidget {
   const HistoryComponent({super.key});
@@ -12,7 +11,7 @@ class HistoryComponent extends ConsumerStatefulWidget {
 }
 
 class _HistoryComponentState extends ConsumerState<HistoryComponent> {
-  List<QuizHistory> _histories = [];
+  List<QuizSessionResult> _histories = [];
   bool _isLoading = true;
   String? _error;
 
@@ -84,10 +83,9 @@ class _HistoryComponentState extends ConsumerState<HistoryComponent> {
       padding: const EdgeInsets.all(16.0),
       itemCount: _histories.length,
       itemBuilder: (context, index) {
-        final history = _histories[index];
 
         return Column(
-          children: history.quizSessionResults.map((quiz) {
+          children: _histories.map((quiz) {
             return Card(
               margin: const EdgeInsets.only(bottom: 16.0),
               shape: RoundedRectangleBorder(
@@ -103,7 +101,7 @@ class _HistoryComponentState extends ConsumerState<HistoryComponent> {
                   color: Color(0xFFD2D3C7),
                 ),
                 title: Text(
-                  quiz.quizTitle,
+                  quiz.quizTitle ?? "",
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

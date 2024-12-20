@@ -78,14 +78,7 @@ class Quiz extends _$Quiz {
     return null;
   }
 
-  Future<List<QuizHistory>?> getQuizHistory() async {
-    final response = await quizService.getQuizHistory();
-
-    if (response != null) {
-      return response;
-    }
-
-    print('Failed to get quiz history.');
-    return null;
+  Future<List<QuizSessionResult>?> getQuizHistory() async {
+    return await quizService.getQuizHistory();
   }
 }

@@ -6,7 +6,7 @@ QuizHistory quizHistoryFromJson(String str) =>
 String quizHistoryToJson(QuizHistory data) => json.encode(data.toJson());
 
 class QuizHistory {
-  String message;
+  String? message;
   List<QuizSessionResult> quizSessionResults;
 
   QuizHistory({
@@ -16,10 +16,8 @@ class QuizHistory {
 
   factory QuizHistory.fromJson(Map<String, dynamic> json) => QuizHistory(
         message: json["message"],
-        quizSessionResults: List<QuizSessionResult>.from(
-          json["quiz_session_results"].map(
-            (x) => QuizSessionResult.fromJson(x),
-          ),
+        quizSessionResults: json["data"].map(
+          (x) => QuizSessionResult.fromJson(x),
         ),
       );
 
@@ -31,13 +29,13 @@ class QuizHistory {
 }
 
 class QuizSessionResult {
-  String id;
-  String userId;
-  String quizSessionId;
+  String? id;
+  String? userId;
+  String? quizSessionId;
   int totalScore;
   int correctAnswers;
   int incorrectAnswers;
-  String quizTitle;
+  String? quizTitle;
   DateTime createdAt;
   DateTime updatedAt;
 
