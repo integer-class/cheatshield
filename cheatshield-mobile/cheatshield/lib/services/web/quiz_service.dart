@@ -89,8 +89,7 @@ class QuizService extends _$QuizService {
     }
   }
 
-  // history
-  Future<List<QuizHistory>?> getQuizHistory() async {
+  Future<List<QuizSessionResult>?> getQuizHistory() async {
     try {
       final token = await ref.read(storageProvider).get('token');
       final response = await httpClient.get(
@@ -103,14 +102,15 @@ class QuizService extends _$QuizService {
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        return (response.data["data"] as List)
-            .map((e) => QuizHistory.fromJson(e))
+        return (response.data["data"] as List<dynamic>)
+            .map((e) => QuizSessionResult.fromJson(e))
             .toList();
       } else {
         debugPrint('Quiz History Response Error: ${response.data}');
         return null;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrintStack(stackTrace: stackTrace);
       debugPrint('Quiz History Exception: $e');
       return null;
     }
