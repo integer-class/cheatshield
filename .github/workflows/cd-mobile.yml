@@ -1,0 +1,47 @@
+name: Build Flutter App
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cheatshield-mobile/**'
+      - '.github/workflows/cd-mobile.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        flutter-version: '3.27.0'
+        cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+        cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:"
+        pub-cache-key: "flutter-pub:os:-:channel:-:version:-:arch:-:hash:"
+        pub-cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:"
+
+    - name: Print outputs
+      shell: bash
+      run: |
+        echo CACHE-PATH=${{ steps.flutter-action.outputs.CACHE-PATH }}
+        echo CACHE-KEY=${{ steps.flutter-action.outputs.CACHE-KEY }}
+        echo CHANNEL=${{ steps.flutter-action.outputs.CHANNEL }}
+        echo VERSION=${{ steps.flutter-action.outputs.VERSION }}
+        echo ARCHITECTURE=${{ steps.flutter-action.outputs.ARCHITECTURE }}
+        echo PUB-CACHE-PATH=${{ steps.flutter-action.outputs.PUB-CACHE-PATH }}
+        echo PUB-CACHE-KEY=${{ steps.flutter-action.outputs.PUB-CACHE-KEY }}
+
+    - run: flutter --version
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Build Flutter app
+      run: flutter build apk --release --split-per-abi
+
