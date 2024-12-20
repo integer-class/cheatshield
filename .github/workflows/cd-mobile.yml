@@ -26,6 +26,11 @@ jobs:
         pub-cache-key: "flutter-pub:os:-:channel:-:version:-:arch:-:hash:"
         pub-cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:"
 
+    - uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin' # See 'Supported distributions' for available options
+        java-version: '17'
+
     - name: Print outputs
       shell: bash
       run: |
