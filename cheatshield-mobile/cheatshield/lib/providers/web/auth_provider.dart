@@ -4,15 +4,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Auth extends _$Auth {
   late AuthService authService;
   late Storage storage;
 
   @override
   Map<String, dynamic> build() {
-    authService = ref.read(authServiceProvider.notifier);
-    storage = ref.read(storageProvider);
+    authService = ref.watch(authServiceProvider.notifier);
+    storage = ref.watch(storageProvider);
     return {
       'is_loading': false,
       'token': null,

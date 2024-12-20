@@ -14,14 +14,6 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
   final TextEditingController _codeController = TextEditingController();
   bool _isLoading = false;
 
-  late Quiz quizNotifier;
-
-  @override
-  void initState() {
-    quizNotifier = ref.read(quizProvider.notifier);
-    super.initState();
-  }
-
   @override
   void dispose() {
     _codeController.dispose();
@@ -48,7 +40,8 @@ class _HomeCodeState extends ConsumerState<HomeCode> {
     });
 
     try {
-      final quizResponse = await quizNotifier.joinQuiz(code);
+      final quizResponse =
+          await ref.watch(quizProvider.notifier).joinQuiz(code);
 
       // Reset loading state
       setState(() {

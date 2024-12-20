@@ -5,7 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'quiz_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Quiz extends _$Quiz {
   int _currentQuestionIndex = 0;
   int get currentQuestionIndex => _currentQuestionIndex;
@@ -13,7 +13,7 @@ class Quiz extends _$Quiz {
 
   @override
   QuizResponse? build() {
-    quizService = ref.read(quizServiceProvider.notifier);
+    quizService = ref.watch(quizServiceProvider.notifier);
     return null;
   }
 

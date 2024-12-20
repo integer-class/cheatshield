@@ -1,5 +1,4 @@
 import 'package:cheatshield/providers/web/auth_provider.dart';
-import 'package:cheatshield/providers/web/profile_provider.dart';
 import 'package:cheatshield/screens/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

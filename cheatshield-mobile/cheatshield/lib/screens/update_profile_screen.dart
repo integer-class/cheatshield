@@ -23,7 +23,7 @@ class UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
 
   @override
   void initState() {
-    profileService = ref.read(profileServiceProvider.notifier);
+    profileService = ref.watch(profileServiceProvider.notifier);
     super.initState();
   }
 
@@ -111,9 +111,7 @@ class UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  final token = ref.read(authProvider); // Get the token
                   final data = {
-                    'token': token,
                     'name': _nameController.text,
                     'email': _emailController.text,
                     'nim': _nimController.text,

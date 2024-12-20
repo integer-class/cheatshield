@@ -20,5 +20,5 @@ class Storage {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Storage storage(Ref ref) => Storage();

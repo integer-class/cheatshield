@@ -8,7 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'quiz_service.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class QuizService extends _$QuizService {
   @override
   Future<QuizResponse?> build() async {

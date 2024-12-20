@@ -3,13 +3,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Profile extends _$Profile {
   late ProfileService profileService;
 
   @override
   Map<String, dynamic> build() {
-    profileService = ref.read(profileServiceProvider.notifier);
+    profileService = ref.watch(profileServiceProvider.notifier);
     return {};
   }
 

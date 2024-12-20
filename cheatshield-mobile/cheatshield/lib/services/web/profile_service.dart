@@ -5,7 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile_service.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ProfileService extends _$ProfileService {
   @override
   Map<String, dynamic> build() {
