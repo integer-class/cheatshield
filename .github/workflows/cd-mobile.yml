@@ -56,7 +56,7 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Releases
+        name: mobile-artifacts
         path: |
-          ./cheatshield-mobile/cheatshield/build/app/outputs/flutter-apk/
+          ./cheatshield-mobile/cheatshield/build/app/outputs/flutter-apk/*
 
