@@ -1,1 +1,1 @@
-const apiBaseUrl = "http://localhost:80/api/v1";
+const apiBaseUrl = "https://cheatshield-admin.elianiva.my.id/api/v1";
