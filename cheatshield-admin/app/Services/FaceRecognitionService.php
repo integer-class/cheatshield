@@ -16,6 +16,11 @@ class FaceRecognitionService
         $this->client = new Client([
             'base_uri' => env('FACE_RECOGNITION_SERVICE_URL'),
             'timeout' => 120, // 2 minutes since the video embedding can take a while
+            'headers' => [
+                'Authorization' => 'Bearer ' . env('FACE_RECOGNITION_SERVICE_TOKEN'),
+                'Content-Type' => 'multipart/form-data',
+                'Accept' => 'application/json',
+            ]
         ]);
     }
 
