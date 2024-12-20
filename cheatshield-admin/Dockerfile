@@ -21,7 +21,7 @@ RUN curl -sfS https://dotenvx.sh/install.sh | sh
 
 # Copy application files
 COPY . .
-COPY .env.${ENV} .env
+COPY .env .
 
 # build deps
 RUN bun run build
